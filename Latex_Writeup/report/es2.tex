@@ -1,0 +1,104 @@
+\documentclass[twocolumn]{article}
+\usepackage{graphicx}
+
+% Search for images in the diagrams directory
+\graphicspath{diagrams/}
+
+% Ensure that images can be considered not to float
+\usepackage{float}
+
+% For listing code
+\usepackage{listings}
+
+% For lst entries (code)
+\lstset{columns=fullflexible, basicstyle=\ttfamily,
+    backgroundcolor=\color{white},xleftmargin=0.5cm,frame=tlbr,framesep=4pt,framerule=0pt}
+    
+% For captions under images
+\usepackage{caption}
+ %can change justification to center if needed
+ %can also change width to change margins on captions
+\captionsetup{width=.75\textwidth,font=small,labelfont=bf}
+
+% For numbering equations and matrices
+\usepackage{amsmath}
+
+% For highlighting, use \hl{TEXT HERE}
+\usepackage{color,soul}
+
+% Set indent to zero
+% \setlength\parindent{0pt}
+
+% Puts an indent in the first paragraph of a section
+\usepackage{indentfirst}
+
+% Set amount of space to skip for each paragraph to 1 em
+\setlength{\parskip}{1em}
+
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+
+\begin{document}
+
+\title{An Indoor Positioning System (IPS) for Android}
+\author{Andre Bododea}
+%\date{\vspace{-5ex}} % get rid of date
+\date{\vspace{1em}} % get rid of date
+
+\maketitle
+
+\section*{Introduction}
+This implementation is largely based on the oft-cited paper \cite{kaemarungsi2004modeling}. Support for an Android-specific method was found from the paper \cite{shchekotov2014indoor}.
+
+\hl{Minimum 4 pages, max 5 pages}
+
+This program does not attempt to map laterally, it simply focuses on a forward and backward movement. This is ideal for long indoor stretches such as hallways and shopping malls, where we are only interested in tracking the motion of the user moving in one plane.
+
+
+
+\section*{User Guide}
+
+\hl{"An easy and straight-forward guide on how to use the application and experience
+its full features and functionality."}
+
+\subsection*{Training Phase}
+
+This phase allows a user to go to one of 3 pre-defined locations. These locations include various rooms within the \hl{pick a building} building.
+
+The layouts of these areas are overlayed on a Google Map. The idea behind the training phase is that a person
+
+Database
+
+\subsection*{Positioning Phase}
+
+\subsection*{Key Features}
+
+\section*{Programmer Guide}
+
+Uses Google Maps API in order to provide mapping functionality. Finds the latest GPS location either via GPS or via WiFi, depending on what's available. 
+
+In order to view floor plans on the map, a Ground Overlay is used. Users will be able to insert their own floor plan images if they so choose to.
+
+
+I take my floor plan image and draw it as a Drawable object. This then allows me to draw over it. 
+
+
+https://developers.google.com/maps/documentation/android-api/groundoverlay
+
+\begin{itemize}
+
+\item \hl{Application Interface and functionality introduction}
+\item \hl{ Sensors used and their implementation }
+\item \hl{ Sensor data processing and any algorithm used to achieve function. }
+\item \hl{ Principal methods/listeners implemented in the code. }
+\item \hl{Extra performance (if applicable) and its realization should be explained for marking purpose only}
+\end{itemize}
+
+
+\section*{Conclusion}
+Write your conclusion here.
+
+% sort references in order of usage
+\bibliographystyle{unsrt}
+\bibliography{es2}
+
+\end{document}

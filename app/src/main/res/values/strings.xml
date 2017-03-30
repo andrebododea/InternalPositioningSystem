@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ES_Assignment_2</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_starting">StartingActivity</string>
+</resources>
