@@ -38,7 +38,7 @@
         </activity>
 
         <activity
-            android:name=".StartingActivity"
+            android:name=".DrawActivity"
             android:label="@string/title_activity_starting"
             android:theme="@style/AppTheme.NoActionBar">
 

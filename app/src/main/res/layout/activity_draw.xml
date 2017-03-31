@@ -8,12 +8,10 @@
     <view
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        class="com.example.s1350924.es_assignment_2.drawRoute"
+        class="com.example.s1350924.es_assignment_2.DrawActivity$drawRoute"
         android:id="@+id/single_touch_view"
         android:layout_gravity="left|top"
         android:background="#ffffff" />
-
-
 
 </FrameLayout>
 
