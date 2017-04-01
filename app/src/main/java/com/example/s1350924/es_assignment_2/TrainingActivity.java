@@ -13,6 +13,10 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -22,39 +26,32 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class DrawActivity extends Activity {
+import static com.example.s1350924.es_assignment_2.R.id.fab_pause;
 
-    boolean proceedWithDrawing;
+public class TrainingActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // setContentView(R.layout.activity_starting);
-        setContentView(R.layout.activity_draw);
+        setContentView(R.layout.activity_training);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-/*
-        Draw = (Draw)findViewById(R.id.single_touch_view);
+        FloatingActionButton fab_play_pause = (FloatingActionButton) findViewById(fab_pause);
+        fab_play_pause.setImageResource(android.R.drawable.ic_media_pause);
 
-        refresh.setOnClickListener(new View.OnClickListener() {
-
+        fab_play_pause.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                Draw.invalidate();
+            public void onClick(View view) {
+                Snackbar.make(view, "Should pause the training", Snackbar.LENGTH_LONG)
+                        .setAction("Pause", null).show();
             }
-        }
         });
-
-
-*/
-    }
-
-    private void dialogBox(){
-
     }
 
 
     // Does all the drawing
-    public static class drawRoute extends View {
+    public static class animateRoute extends View {
 
         Context context;
         /*
@@ -76,19 +73,19 @@ public class DrawActivity extends Activity {
         // the last one takes a Context, an AttributeSet, and an integer
 
         // First constructor
-        public drawRoute(Context context) {
+        public animateRoute(Context context) {
             super(context);
             init(context);
         }
 
         // The second constructor
-        public drawRoute(Context context, AttributeSet attrs) {
+        public animateRoute(Context context, AttributeSet attrs) {
             super(context, attrs);
             init(context);
         }
 
         // Third constructor
-        public drawRoute(Context context, AttributeSet attrs, int lastarg) {
+        public animateRoute(Context context, AttributeSet attrs, int lastarg) {
             super(context, attrs, lastarg);
             init(context);
         }
@@ -163,7 +160,7 @@ public class DrawActivity extends Activity {
                                 public void onClick(DialogInterface dialog, int id) {
                                     // if this button is clicked, go on to the next activity
                                     Activity activity = (Activity) context;
-                                   // Intent myIntent = new Intent(activity, MapsActivity.class);
+                                    // Intent myIntent = new Intent(activity, MapsActivity.class);
                                     Intent myIntent = new Intent(activity, TrainingActivity.class);
 
                                     activity.startActivity(myIntent);
@@ -238,5 +235,8 @@ public class DrawActivity extends Activity {
         }
 
     }
+
+
+
 
 }

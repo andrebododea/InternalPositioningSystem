@@ -12,11 +12,11 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
-        android:hardwareAccelerated="false"
-        android:largeHeap="true"
         android:allowBackup="true"
+        android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
@@ -28,26 +28,27 @@
              sign the APK for publishing.
              You can define the keys for the debug and release targets in src/debug/ and src/release/. 
         -->
-        <meta-dataws
+        <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+            android:value="AIzaSyBB1R-phCEl3VA7qWFpnSCtrVN7tKebLIw" />
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps">
-        </activity>
-
+            android:label="@string/title_activity_maps" />
         <activity
             android:name=".DrawActivity"
             android:label="@string/title_activity_starting"
             android:theme="@style/AppTheme.NoActionBar">
-
-             <intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-             </intent-filter>
-        </activity>
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".TrainingActivity"
+            android:label="@string/title_activity_training"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

@@ -2,4 +2,8 @@
     <string name="app_name">ES_Assignment_2</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_starting">StartingActivity</string>
+
+    <string name="title_activity_training">TrainingActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>
