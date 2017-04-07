@@ -1,54 +1,92 @@
 package com.example.s1350924.es_assignment_2;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import static com.example.s1350924.es_assignment_2.R.id.fab_pause;
 
-public class TrainingActivity extends AppCompatActivity {
+public class TrainingActivity extends Activity {
+
+    ImageView stickman;
+
+    ArrayList<Float> animationXCoords;
+    ArrayList<Float> animationYCoords;
+    static int currentAnimationIndex;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_training);
+        /*
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        */
+
+
+        // Get the coordinates passed in from the last activity
+        animationXCoords = ( ArrayList<Float>) getIntent().getSerializableExtra("Xpoints");
+        animationYCoords = ( ArrayList<Float>) getIntent().getSerializableExtra("Ypoints");
+
+
+        // Set the stickman ImageView to the first location of the path
+        stickman = (ImageView) findViewById(R.id.stickman);
+        if(animationXCoords != null && animationYCoords != null) {
+            stickman.setX(animationXCoords.get(0));
+            stickman.setY(animationYCoords.get(0));
+        }
 
         FloatingActionButton fab_play_pause = (FloatingActionButton) findViewById(fab_pause);
         fab_play_pause.setImageResource(android.R.drawable.ic_media_pause);
+
+
 
         fab_play_pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Should pause the training", Snackbar.LENGTH_LONG)
                         .setAction("Pause", null).show();
+/*
+                currentAnimationIndex = 1;
+                currentlyAnimating = true;
+                beginAnimationOfRoute();
+                */
             }
         });
     }
+/*
+    public void beginAnimationOfRoute(){
 
+        if(currentlyAnimating) {
+            for (int i = currentAnimationIndex; i < animationXCoords.size()-1; i++) {
+                currentAnimationIndex++;
+                TranslateAnimation animation = new TranslateAnimation(animationXCoords.get(i), animationXCoords.get(i+1),
+                        animationYCoords.get(i), animationYCoords.get(i+1));
+                animation.setDuration(1000);
+                animation.setFillAfter(true);
+                stickman.startAnimation(animation);
+            }
+        }
+    }
+*/
 
     // Does all the drawing
     public static class animateRoute extends View {
@@ -59,13 +97,17 @@ public class TrainingActivity extends AppCompatActivity {
          * These array lists will be stored alongside RSS values when training
          * so that we will be able to track user location on the floor plan when tracking
          */
-        ArrayList<Float> xCoords = new ArrayList<Float>();
-        ArrayList<Float> yCoords = new ArrayList<Float>();
+        Handler mHandler;
 
-        Bitmap floor_plan_bitmap;
+        boolean drawingInProgress;
 
         private Paint paint = new Paint();
         private Path path = new Path();
+
+        private Bitmap fleemingJenkin;
+        private ArrayList<Float> xCoords;
+        private ArrayList<Float> yCoords;
+        int numberOfInvalidations;
 
         // Three contructor overloads are required for views inflated from XML.
         // The first takes a Context argument
@@ -95,18 +137,21 @@ public class TrainingActivity extends AppCompatActivity {
         // Gets called from both constructors
         private void init(Context context) {
 
+            // Get context and then the activity from that context
             this.context = context;
+            Activity activity = (Activity) context;
 
-            // Sets floor plan image to a Bitmap so that we can draw over it via Paint
-            Bitmap immutable_bitmap = BitmapFactory.decodeResource(context.getResources(),
-                    R.drawable.fleeming_jenkin_ground_floor);
 
-            immutable_bitmap = scaleBitMapToScreenSize(immutable_bitmap);
+            // Get byte array that contains the blueprint bitmap from the intent
+            // This was passed in from the DrawActivity activity
+            byte[] byteArray = activity.getIntent().getByteArrayExtra("image");
 
-            // Gets rid of the "immutable bitmap passed to Canvas contructor" error
-            // This is the immutable bitmap
-            floor_plan_bitmap = immutable_bitmap.copy(Bitmap.Config.ARGB_8888, true);
+            // Convert byte array to bitmap
+            fleemingJenkin = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
 
+            // Get the coordinates passed in from the last activity
+            xCoords = ( ArrayList<Float>) activity.getIntent().getSerializableExtra("Xpoints");
+            yCoords = ( ArrayList<Float>) activity.getIntent().getSerializableExtra("Ypoints");
 
             // Path is stroked, red, 5dpi in diameter,
             // and the points of the path will be joined and rounded.
@@ -116,127 +161,78 @@ public class TrainingActivity extends AppCompatActivity {
             paint.setStyle(Paint.Style.STROKE);
             paint.setStrokeJoin(Paint.Join.ROUND);
 
+            // Start path
+            if(xCoords.size() > 0 && yCoords.size()>0) {
+                path.moveTo(xCoords.get(0), yCoords.get(0));
+                for (int i = 1; i < xCoords.size(); i++) {
+                    // Draw the next segment of the line
+                    path.lineTo(xCoords.get(i), yCoords.get(i));
+                }
+            }else{
+                Toast.makeText(activity, "No path data found. Please go back to the draw phase and try again.",
+                        Toast.LENGTH_LONG).show();
+            }
+
+
+            numberOfInvalidations = 0;
+        }
+
+
+        // When the screen is tapped, the animation begins
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+
+            // Create handler for delay to draw out the animation and make it slower
+            // and thus easier to follow as the walker
+
+            // Prevent us going over the size of the actual number of input data points
+            // Otherwise we could have many duplicate map points
+            if(numberOfInvalidations <= xCoords.size()) {
+                // Animate the green circle to move over the path
+                delayIndexIncrease();
+            }
+
+            System.out.println("Number of invalidations is : "+numberOfInvalidations);
+            System.out.println("Number of data points is : "+xCoords.size());
+
+            return true;
+        }
+
+        // Animate the green circle to move over the path of points
+        // Waits a few hundred ms until moving to the next point, this makes it slow enough for
+        // a human walker to keep pace
+        private void delayIndexIncrease(){
+            int numberOfIterations = xCoords.size()-1;
+            int millisecondsPerFrame = 300; // 800 is walking pace
+            int totalMilliseconds = millisecondsPerFrame * numberOfIterations;
+            new CountDownTimer(totalMilliseconds, millisecondsPerFrame) {
+                public void onTick(long millisUntilFinished) {
+                    invalidate();
+                    if(currentAnimationIndex == xCoords.size()-1){
+                        cancel();
+                    }else {
+                        currentAnimationIndex++;
+                    }
+                }
+                public void onFinish() {}
+            }.start();
+
+
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
-            canvas.drawBitmap(floor_plan_bitmap, 0, 0, null);
-            // canvas.setBitmap(floor_plan_bitmap);
+            canvas.drawBitmap(fleemingJenkin, 0, 0, null);
             canvas.drawPath(path, paint);
+            float xc = xCoords.get(currentAnimationIndex);
+            float yc = yCoords.get(currentAnimationIndex);
+            Paint paint = new Paint();
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.GREEN);
+            canvas.drawCircle(xc, yc, 30, paint );
+            numberOfInvalidations++;
         }
-
-        @Override
-        public boolean onTouchEvent(MotionEvent event) {
-            // Get the coordinates of the touch event
-            float eventX = event.getX();
-            float eventY = event.getY();
-
-            switch (event.getAction()) {
-                // When a finger touches down on the screen
-                case MotionEvent.ACTION_DOWN:
-                    // Add the coordinates to array lists
-                    xCoords.add(eventX);
-                    yCoords.add(eventY);
-                    // Set a new starting point
-                    path.moveTo(eventX, eventY);
-                    return true;
-                // When a finger moves around on the screen
-                case MotionEvent.ACTION_MOVE:
-                    xCoords.add(eventX);
-                    yCoords.add(eventY);
-                    // Connect the points
-                    path.lineTo(eventX, eventY);
-                    break;
-
-                case MotionEvent.ACTION_UP:
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-                    // set title
-                    alertDialogBuilder.setTitle("Would You Like To Accept This Path?");
-                    // set dialog message
-                    alertDialogBuilder
-                            .setMessage("Click no to try again.")
-                            .setCancelable(false)
-                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    // if this button is clicked, go on to the next activity
-                                    Activity activity = (Activity) context;
-                                    // Intent myIntent = new Intent(activity, MapsActivity.class);
-                                    Intent myIntent = new Intent(activity, TrainingActivity.class);
-
-                                    activity.startActivity(myIntent);
-                                }
-                            })
-                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    path.reset();
-                                    Toast toast = Toast.makeText(context, "Try again!", Toast.LENGTH_SHORT);
-                                    toast.show();
-                                }
-                            });
-
-                    // create alert dialog
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-
-                    // show it
-                    alertDialog.show();
-
-
-
-
-                    return false;
-
-                default:
-                    return false;
-            }
-
-            // Makes our view repaint and call onDraw
-            invalidate();
-            return true;
-        }
-
-
-        private Bitmap scaleBitMapToScreenSize(Bitmap unscaledBitmap) {
-
-            // This is the scaled bitmap, will be returned
-            Bitmap s_Bitmap = null;
-
-            // Use try/catch to get rid of StackTrace error uncaught warning
-            try {
-                DisplayMetrics metrics = new DisplayMetrics();
-                ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-                        .getDefaultDisplay().getMetrics(metrics);
-
-                int orig_width = unscaledBitmap.getWidth();
-                System.out.println("Unscaled width is: " + orig_width);
-                int orig_height = unscaledBitmap.getHeight();
-                System.out.println("Unscaled height is: " + orig_height);
-
-                float scaled_width = metrics.scaledDensity;
-                System.out.println("Scaled width is: " + scaled_width);
-                float scaled_height = metrics.scaledDensity;
-                System.out.println("Scaled height is: " + scaled_height);
-
-                // create a matrix for the manipulation
-                Matrix matrix = new Matrix();
-                // resize the bit map
-                scaled_width = scaled_width * 0.15f;
-                scaled_height = scaled_height * 0.15f;
-                // Scale the matrix down
-                matrix.postScale(scaled_width, scaled_height);
-                // Rotate the matrix 90 degrees
-                matrix.postRotate(90);
-
-                // recreate the new Bitmap
-                s_Bitmap = Bitmap.createBitmap(unscaledBitmap, 0, 0, orig_width, orig_height, matrix, true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return s_Bitmap;
-        }
-
     }
-
-
 
 
 }

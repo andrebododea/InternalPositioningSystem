@@ -20,11 +20,13 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 public class DrawActivity extends Activity {
 
     boolean proceedWithDrawing;
+    Path finalPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,14 +50,9 @@ public class DrawActivity extends Activity {
 */
     }
 
-    private void dialogBox(){
-
-    }
-
 
     // Does all the drawing
     public static class drawRoute extends View {
-
         Context context;
         /*
          * Array lists that will hold the x and y coordinates
@@ -119,6 +116,8 @@ public class DrawActivity extends Activity {
             paint.setStyle(Paint.Style.STROKE);
             paint.setStrokeJoin(Paint.Join.ROUND);
 
+
+
         }
 
         @Override
@@ -163,9 +162,20 @@ public class DrawActivity extends Activity {
                                 public void onClick(DialogInterface dialog, int id) {
                                     // if this button is clicked, go on to the next activity
                                     Activity activity = (Activity) context;
-                                   // Intent myIntent = new Intent(activity, MapsActivity.class);
-                                    Intent myIntent = new Intent(activity, TrainingActivity.class);
 
+                                    //Convert bitmap to byte array
+                                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                                    floor_plan_bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                                    byte[] byteArray = stream.toByteArray();
+                                    // Add bitmap byte array to intent
+                                    Intent myIntent = new Intent(activity, TrainingActivity.class);
+                                    myIntent.putExtra("image",byteArray);
+
+                                    // Add the two arrays with points
+                                    myIntent.putExtra("Xpoints",xCoords);
+                                    myIntent.putExtra("Ypoints",yCoords);
+
+                                    // Start new activity with this new intent
                                     activity.startActivity(myIntent);
                                 }
                             })
@@ -182,9 +192,6 @@ public class DrawActivity extends Activity {
 
                     // show it
                     alertDialog.show();
-
-
-
 
                     return false;
 
@@ -231,6 +238,28 @@ public class DrawActivity extends Activity {
 
                 // recreate the new Bitmap
                 s_Bitmap = Bitmap.createBitmap(unscaledBitmap, 0, 0, orig_width, orig_height, matrix, true);
+        /*
+                // Save the resized image to file
+                FileOutputStream out = null;
+                try {
+                    File file = new File(context.getFilesDir(), "fleemingJenkin");
+                    out = new FileOutputStream(file);
+                    // Compress the bitmap to a PNG
+                    // The option of 100 is ignored as PNG is a losseless format
+                    s_Bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (out != null) {
+                            out.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+        */
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
