@@ -160,6 +160,7 @@ public class DrawActivity extends Activity {
                             .setCancelable(false)
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
+
                                     // if this button is clicked, go on to the next activity
                                     Activity activity = (Activity) context;
 
@@ -177,6 +178,10 @@ public class DrawActivity extends Activity {
 
                                     // Start new activity with this new intent
                                     activity.startActivity(myIntent);
+                                    
+                                    // Clear path
+                                    path = new Path();
+
                                 }
                             })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {

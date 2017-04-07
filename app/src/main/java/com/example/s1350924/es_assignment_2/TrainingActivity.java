@@ -8,6 +8,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -20,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.example.s1350924.es_assignment_2.R.id.fab_pause;
 
@@ -41,22 +44,8 @@ public class TrainingActivity extends Activity {
         setSupportActionBar(toolbar);
         */
 
-
-        // Get the coordinates passed in from the last activity
-        animationXCoords = ( ArrayList<Float>) getIntent().getSerializableExtra("Xpoints");
-        animationYCoords = ( ArrayList<Float>) getIntent().getSerializableExtra("Ypoints");
-
-
-        // Set the stickman ImageView to the first location of the path
-        stickman = (ImageView) findViewById(R.id.stickman);
-        if(animationXCoords != null && animationYCoords != null) {
-            stickman.setX(animationXCoords.get(0));
-            stickman.setY(animationYCoords.get(0));
-        }
-
         FloatingActionButton fab_play_pause = (FloatingActionButton) findViewById(fab_pause);
         fab_play_pause.setImageResource(android.R.drawable.ic_media_pause);
-
 
 
         fab_play_pause.setOnClickListener(new View.OnClickListener() {
@@ -64,29 +53,10 @@ public class TrainingActivity extends Activity {
             public void onClick(View view) {
                 Snackbar.make(view, "Should pause the training", Snackbar.LENGTH_LONG)
                         .setAction("Pause", null).show();
-/*
-                currentAnimationIndex = 1;
-                currentlyAnimating = true;
-                beginAnimationOfRoute();
-                */
             }
         });
     }
-/*
-    public void beginAnimationOfRoute(){
 
-        if(currentlyAnimating) {
-            for (int i = currentAnimationIndex; i < animationXCoords.size()-1; i++) {
-                currentAnimationIndex++;
-                TranslateAnimation animation = new TranslateAnimation(animationXCoords.get(i), animationXCoords.get(i+1),
-                        animationYCoords.get(i), animationYCoords.get(i+1));
-                animation.setDuration(1000);
-                animation.setFillAfter(true);
-                stickman.startAnimation(animation);
-            }
-        }
-    }
-*/
 
     // Does all the drawing
     public static class animateRoute extends View {
@@ -207,17 +177,42 @@ public class TrainingActivity extends Activity {
             int totalMilliseconds = millisecondsPerFrame * numberOfIterations;
             new CountDownTimer(totalMilliseconds, millisecondsPerFrame) {
                 public void onTick(long millisUntilFinished) {
-                    invalidate();
                     if(currentAnimationIndex == xCoords.size()-1){
                         cancel();
                     }else {
+                        invalidate();
                         currentAnimationIndex++;
+                        // wifiScan();
                     }
                 }
                 public void onFinish() {}
+
             }.start();
 
+            wifiScan();
 
+        }
+
+
+        public void wifiScan(){
+            WifiManager wifiManager  = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            List<ScanResult> wifiList = wifiManager.getScanResults();
+
+            // Level of a Scan Result
+                for (ScanResult scanResult : wifiList) {
+
+                    // The MAC address of the wireless access point (BSSID)
+                    // This is unique to each network access point
+                    String networkAddress = scanResult.BSSID;
+                    System.out.println("Network address: "+ networkAddress);
+
+                    // Network's signal level
+                    int level = WifiManager.calculateSignalLevel(scanResult.level, 50);
+                    System.out.println("Level is " + level + " out of 50");
+
+                    // By storing the BSSID along with the signal level of each access point
+                    // We can get a unique fingerprint of each position access point
+                }
         }
 
         @Override

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,15 +9,6 @@
 
 
     <!-- This is the view on which we will draw. -->
-
-    <ImageView
-        android:id="@+id/stickman"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginLeft="3dip"
-        android:src="@drawable/stickman"
-        />
-
 
     <view
         android:layout_width="match_parent"
@@ -37,4 +28,4 @@
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@android:drawable/ic_dialog_email" />
 
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>
