@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 
@@ -41,10 +40,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(this);
-
-
-        // First, request permissions
-        requestPermissionsBox();
     }
 
 
@@ -77,7 +72,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         myLocaysh.showInfoWindow();
 
+        // Set the map focus
         mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
+
+        // Set the zoom onto the current location
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLat, mLong), 15.0f));
+
 
         LatLng fleemingJenkin = new LatLng(55.922413, -3.172393);
         fleemingJenkinMarker = mMap.addMarker(new MarkerOptions().position(fleemingJenkin).title("Marker at coordinates " +
@@ -87,17 +87,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         fleemingJenkinMarker.showInfoWindow();
 
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
-        {
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if(marker.equals(fleemingJenkinMarker)) { // if marker source is clicked
+                if (marker.equals(fleemingJenkinMarker)) { // if marker source is clicked
                     Intent myIntent = new Intent(MapsActivity.this, DrawActivity.class);
                     MapsActivity.this.startActivity(myIntent);
                 }
 
-                if(marker.equals(myLocaysh)) { // if marker source is clicked
+                if (marker.equals(myLocaysh)) { // if marker source is clicked
                     myLocaysh.showInfoWindow();
                 }
 
@@ -108,8 +107,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public boolean onMarkerClick(final Marker marker) {
 
-        if (marker.equals(fleemingJenkinMarker))
-        {
+        if (marker.equals(fleemingJenkinMarker)) {
 
         }
         return true;
@@ -125,9 +123,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * This provides a "ballpark" GPS location of where we are, and then we can go on to fine-tune
      * this location as we move around indoors by means of wifi triangulation
      */
-    public void globalPosition(){
+    public void globalPosition() {
         // Initialise a location manager
-        LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         // Check if have the necessary permissions (Fine location for GPS)
         if (ContextCompat.checkSelfPermission(MapsActivity.this,
@@ -156,32 +154,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     }
-
-
-
-    /*
-     * Checks permissions and allows the user to enable permissions
-     * If permissions are not enabled by default, this can cause the app to crash or exhibit
-     * undefined behaviour. Therefore we check permissions and ask the user to enable them as soon
-     * as the onCreate() function is called. This prevents any of this unwanted behaviour.
-     */
-    public void requestPermissionsBox() {
-        // Both variables for requesting permissions
-        final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE=20;
-        final int MY_PERMISSIONS_REQUEST_FINE_LOCATION=30;
-
-        // Here, MapsActivity is the current activity
-        if (ContextCompat.checkSelfPermission(MapsActivity.this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Request the permission.
-            ActivityCompat.requestPermissions(MapsActivity.this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-
-            // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an app-defined int constant.
-            // The callback method gets the result of the request.
-        }
-    }
 }
+

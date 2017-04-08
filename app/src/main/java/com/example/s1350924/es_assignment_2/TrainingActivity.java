@@ -75,14 +75,12 @@ public class TrainingActivity extends Activity {
             }
         });
 
-        // Create an instance of the database
-        this.dh = DatabaseHelper.getInstance(this);
 
     }
 
     // Give instructions to the user in a dialogue box
     // This is accessible the whole time the user is training via the question mark button
-    private void raiseExplanationDialogueBox(Context context){
+    private void raiseExplanationDialogueBox(final Context context){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
         // set title
         alertDialogBuilder.setTitle("Training The Database");
@@ -98,6 +96,8 @@ public class TrainingActivity extends Activity {
                 .setCancelable(false)
                 .setPositiveButton("Got it", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        Toast.makeText(context, "Touch the screen anywhere to start training.",
+                                Toast.LENGTH_LONG).show();
 
                     }
                 });
@@ -194,7 +194,6 @@ public class TrainingActivity extends Activity {
                         Toast.LENGTH_LONG).show();
             }
 
-
             numberOfInvalidations = 0;
         }
 
@@ -266,22 +265,21 @@ public class TrainingActivity extends Activity {
                 // The MAC address of the wireless access point (BSSID)
                 // This is unique to each network access point
                 networkAddresses.add(scanResult.BSSID);
-                System.out.println("Network address: "+ scanResult.BSSID);
+          //      System.out.println("Network address: "+ scanResult.BSSID);
 
                 // Network's signal level
 
                 int level = WifiManager.calculateSignalLevel(scanResult.level, 20);
                 signalStrengths.add(level);
-                System.out.println("Level is " + level + " out of 50");
+           //     System.out.println("Level is " + level + " out of 50");
             }
 
             // Get current coordinates
             float xc = xCoords.get(currentAnimationIndex);
             float yc = yCoords.get(currentAnimationIndex);
 
-            // Pass the scan data to the DatabaseProcessor in order to add into the database
-            DatabaseHelper.getInstance(context);
-            DatabaseProcessor db = new DatabaseProcessor(context);
+            // Pass the scan data to the DatabaseHelper in order to add into the database
+            DatabaseHelper db = new DatabaseHelper(context);
             db.insertDataForSomePoint(xc, yc,networkAddresses, signalStrengths);
 
         }
