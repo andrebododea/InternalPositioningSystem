@@ -1,6 +1,7 @@
 package com.example.s1350924.es_assignment_2;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -13,7 +14,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
@@ -22,6 +25,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private double mLat;
     private double mLong;
+
+    private Marker myLocaysh;
+    private Marker fleemingJenkinMarker;
 
     private static final String TAG = "ANDRE BIG TAG MANGGG";
 
@@ -33,7 +39,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+
         mapFragment.getMapAsync(this);
+
 
         // First, request permissions
         requestPermissionsBox();
@@ -51,16 +59,60 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
+
         mMap = googleMap;
 
         // Refresh values for the GPS coordinates
         globalPosition();
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(mLat, mLong);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker at coordinates " +
-                mLat + ", " + mLong));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        // Add a marker at current location and move the camera
+        LatLng myLocation = new LatLng(mLat, mLong);
+
+        myLocaysh = mMap.addMarker(new MarkerOptions().position(myLocation)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                .alpha(0.4f)
+                .title("Your Location")
+        );
+
+        myLocaysh.showInfoWindow();
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
+
+        LatLng fleemingJenkin = new LatLng(55.922413, -3.172393);
+        fleemingJenkinMarker = mMap.addMarker(new MarkerOptions().position(fleemingJenkin).title("Marker at coordinates " +
+                mLat + ", " + mLong)
+                .title("Fleeming Jenkin Building, KB")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+
+        fleemingJenkinMarker.showInfoWindow();
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
+        {
+
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                if(marker.equals(fleemingJenkinMarker)) { // if marker source is clicked
+                    Intent myIntent = new Intent(MapsActivity.this, DrawActivity.class);
+                    MapsActivity.this.startActivity(myIntent);
+                }
+
+                if(marker.equals(myLocaysh)) { // if marker source is clicked
+                    myLocaysh.showInfoWindow();
+                }
+
+                return true;
+            }
+        });
+    }
+
+    public boolean onMarkerClick(final Marker marker) {
+
+        if (marker.equals(fleemingJenkinMarker))
+        {
+
+        }
+        return true;
     }
 
 

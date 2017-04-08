@@ -22,16 +22,13 @@ public class StartActivity extends AppCompatActivity {
         final Activity activity = this;
 
         Context mycontext = (Context)activity;
-        SQLiteHelper myDatabase = new SQLiteHelper(mycontext);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-
-
-                Intent myIntent = new Intent(activity, DrawActivity.class);
+                Intent myIntent = new Intent(activity, MapsActivity.class);
 
                 // Add extras to the Intent to pass to the next activity
                 /*

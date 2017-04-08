@@ -13,6 +13,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -22,6 +23,8 @@ import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+
+import static com.example.s1350924.es_assignment_2.R.id.fab_help;
 
 public class DrawActivity extends Activity {
 
@@ -34,24 +37,54 @@ public class DrawActivity extends Activity {
         // setContentView(R.layout.activity_starting);
         setContentView(R.layout.activity_draw);
 
-/*
-        Draw = (Draw)findViewById(R.id.single_touch_view);
+        final Context mycontext = (Context)this;
 
-        refresh.setOnClickListener(new View.OnClickListener() {
+        raiseExplanationDialogueBox(mycontext);
 
+        // Help users can click if they forgot how to train
+        FloatingActionButton question_button = (FloatingActionButton) findViewById(fab_help);
+        question_button.setImageResource(R.drawable.ic_help_black_48dp);
+        question_button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                Draw.invalidate();
+            public void onClick(View view) {
+                raiseExplanationDialogueBox(mycontext);
             }
-        }
         });
-
-
-*/
     }
 
 
-    // Does all the drawing
+    private void raiseExplanationDialogueBox(Context context){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        // set title
+        alertDialogBuilder.setTitle("Training The Database");
+        // set dialog message
+        alertDialogBuilder
+                .setMessage("This phase will present you with a floor plan of your current building. "
+                        +"In order to train the app so that it can track your location in this building, "
+                        +"you will first need to draw a \"training route\" on the map and then walk the route.\n\n"
+                        +"In this phase you will be drawing your route. Please choose a route that is possible: "
+                        +"e.g. not walking through walls or other obstacles. Draw slowly and as accurately as possible. \n\n"
+                        + "Don't worry about making a mistake, you will be able to re-draw your route as many times "
+                        + "as you need until you get it right. And remember to start at a point near you so that you "
+                        + "don't need to walk to the other side of the building to start the walking phase!")
+                .setCancelable(false)
+                .setPositiveButton("Got it", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                    }
+                });
+
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
+
+    }
+
+
+        // Does all the drawing
     public static class drawRoute extends View {
         Context context;
         /*
@@ -156,7 +189,8 @@ public class DrawActivity extends Activity {
                     alertDialogBuilder.setTitle("Would You Like To Accept This Path?");
                     // set dialog message
                     alertDialogBuilder
-                            .setMessage("Click no to try again.")
+                            .setMessage("Press yes to move on to the walking phase. \n\n" +
+                                    "Press no if you would like to redraw your walking path.")
                             .setCancelable(false)
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
@@ -178,16 +212,18 @@ public class DrawActivity extends Activity {
 
                                     // Start new activity with this new intent
                                     activity.startActivity(myIntent);
-                                    
-                                    // Clear path
-                                    path = new Path();
+
+                                    // Clear the old path
+                                    path.reset();
 
                                 }
                             })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     path.reset();
-                                    Toast toast = Toast.makeText(context, "Try again!", Toast.LENGTH_SHORT);
+                                    Toast toast = Toast.makeText(context,
+                                            "Try again! Once you start drawing the old path will disappear."
+                                            , Toast.LENGTH_SHORT);
                                     toast.show();
                                 }
                             });

@@ -1,7 +1,9 @@
 package com.example.s1350924.es_assignment_2;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.s1350924.es_assignment_2.R.id.fab_help;
 import static com.example.s1350924.es_assignment_2.R.id.fab_pause;
 
 public class TrainingActivity extends Activity {
@@ -34,6 +37,9 @@ public class TrainingActivity extends Activity {
     ArrayList<Float> animationYCoords;
     static int currentAnimationIndex;
 
+    // The database is here
+    public DatabaseHelper dh;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +49,9 @@ public class TrainingActivity extends Activity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         */
+        final Context mycontext = (Context)this;
+
+        raiseExplanationDialogueBox(mycontext);
 
         FloatingActionButton fab_play_pause = (FloatingActionButton) findViewById(fab_pause);
         fab_play_pause.setImageResource(android.R.drawable.ic_media_pause);
@@ -55,8 +64,50 @@ public class TrainingActivity extends Activity {
                         .setAction("Pause", null).show();
             }
         });
+
+        // Help users can click if they forgot how to train
+        FloatingActionButton question_button = (FloatingActionButton) findViewById(fab_help);
+        question_button.setImageResource(R.drawable.ic_help_black_48dp);
+        question_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                raiseExplanationDialogueBox(mycontext);
+            }
+        });
+
+        // Create an instance of the database
+        this.dh = DatabaseHelper.getInstance(this);
+
     }
 
+    // Give instructions to the user in a dialogue box
+    // This is accessible the whole time the user is training via the question mark button
+    private void raiseExplanationDialogueBox(Context context){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        // set title
+        alertDialogBuilder.setTitle("Training The Database");
+        // set dialog message
+        alertDialogBuilder
+                .setMessage("Walk to the place in the building where the green dot is shown on the floor plan." +
+                        "This is the starting location you have chosen on your training route. \n\n" +
+                        "Once you are standing in this spot, touch anywhere on the screen to " +
+                        "begin the training. The dot will start moving along the route, and you" +
+                        " must do your best to keep pace with it as it moves along.\n\n" +
+                        "The closer you keep pace with the dot, the more accurately the app will be able to" +
+                        " track you as you move around the building once you have finished the training." )
+                .setCancelable(false)
+                .setPositiveButton("Got it", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                    }
+                });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
+    }
 
     // Does all the drawing
     public static class animateRoute extends View {
@@ -173,46 +224,66 @@ public class TrainingActivity extends Activity {
         // a human walker to keep pace
         private void delayIndexIncrease(){
             int numberOfIterations = xCoords.size()-1;
-            int millisecondsPerFrame = 300; // 800 is walking pace
+            int millisecondsPerFrame = 800; // 800 is walking pace
             int totalMilliseconds = millisecondsPerFrame * numberOfIterations;
+            /*
+             * TIMER
+             * THIS IS WHERE THE DATABASE FUNCTIONS ARE CALLED
+             * THIS IS WHERE THE DOT IS REDRAWN FOR ANIMATION
+             * PROBABLY THE MOST IMPORTANT PART OF THE ACTIVITY
+             */
             new CountDownTimer(totalMilliseconds, millisecondsPerFrame) {
                 public void onTick(long millisUntilFinished) {
                     if(currentAnimationIndex == xCoords.size()-1){
                         cancel();
                     }else {
+                        // Re-draw the onDraw() method, this moves the green dot to the next point
                         invalidate();
+
+
+                        wifiScanAndDatabaseEntry();
+
+                        // Increment the index of points on the training path
                         currentAnimationIndex++;
-                        // wifiScan();
                     }
                 }
                 public void onFinish() {}
 
             }.start();
-
-            wifiScan();
-
         }
 
 
-        public void wifiScan(){
+        public void wifiScanAndDatabaseEntry(){
             WifiManager wifiManager  = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
             List<ScanResult> wifiList = wifiManager.getScanResults();
 
-            // Level of a Scan Result
-                for (ScanResult scanResult : wifiList) {
+            ArrayList<String> networkAddresses = new ArrayList<String>();
+            ArrayList<Integer> signalStrengths = new ArrayList<Integer>();
 
-                    // The MAC address of the wireless access point (BSSID)
-                    // This is unique to each network access point
-                    String networkAddress = scanResult.BSSID;
-                    System.out.println("Network address: "+ networkAddress);
+           // Add the BSSIDs and signal strengths to the lists
+            for (ScanResult scanResult : wifiList) {
 
-                    // Network's signal level
-                    int level = WifiManager.calculateSignalLevel(scanResult.level, 50);
-                    System.out.println("Level is " + level + " out of 50");
+                // The MAC address of the wireless access point (BSSID)
+                // This is unique to each network access point
+                networkAddresses.add(scanResult.BSSID);
+                System.out.println("Network address: "+ scanResult.BSSID);
 
-                    // By storing the BSSID along with the signal level of each access point
-                    // We can get a unique fingerprint of each position access point
-                }
+                // Network's signal level
+
+                int level = WifiManager.calculateSignalLevel(scanResult.level, 20);
+                signalStrengths.add(level);
+                System.out.println("Level is " + level + " out of 50");
+            }
+
+            // Get current coordinates
+            float xc = xCoords.get(currentAnimationIndex);
+            float yc = yCoords.get(currentAnimationIndex);
+
+            // Pass the scan data to the DatabaseProcessor in order to add into the database
+            DatabaseHelper.getInstance(context);
+            DatabaseProcessor db = new DatabaseProcessor(context);
+            db.insertDataForSomePoint(xc, yc,networkAddresses, signalStrengths);
+
         }
 
         @Override
