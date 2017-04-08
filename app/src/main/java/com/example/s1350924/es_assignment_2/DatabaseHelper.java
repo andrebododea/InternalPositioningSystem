@@ -131,7 +131,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             /*
              * knnScores will store the k nearest neighbour scores of each set of x-y coordinates.
-             * The index of each score in the ArrayList will match the PointID in the database.
+             * The ID of each score in the ArrayList in the database will be held in pointIdInDatabase.
              *
              * Once every score has been entered into the ArrayList, the highest one will be chosen
              * and the x and y coordinates of that point will be extracted from the database,
@@ -141,6 +141,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
              * user's nearest trained location.
              */
         ArrayList<Integer> knnScores = new ArrayList<Integer>();
+        ArrayList<Integer> pointIdInDatabase = new ArrayList<Integer>();
 
         // Open the database
         SQLiteDatabase mDatabase = this.getWritableDatabase();

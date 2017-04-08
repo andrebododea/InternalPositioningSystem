@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.s1350924.es_assignment_2.R.id.fab_help;
-import static com.example.s1350924.es_assignment_2.R.id.fab_pause;
 
 public class TrainingActivity extends Activity {
 
@@ -53,10 +51,9 @@ public class TrainingActivity extends Activity {
 
         raiseExplanationDialogueBox(mycontext);
 
+        /*
         FloatingActionButton fab_play_pause = (FloatingActionButton) findViewById(fab_pause);
         fab_play_pause.setImageResource(android.R.drawable.ic_media_pause);
-
-
         fab_play_pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -64,6 +61,7 @@ public class TrainingActivity extends Activity {
                         .setAction("Pause", null).show();
             }
         });
+        */
 
         // Help users can click if they forgot how to train
         FloatingActionButton question_button = (FloatingActionButton) findViewById(fab_help);
