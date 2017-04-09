@@ -120,11 +120,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Intent myIntent = new Intent(MapsActivity.this, DrawActivity.class);
                     MapsActivity.this.startActivity(myIntent);
                 }
-
-                if (marker.equals(myLocaysh)) { // if marker source is clicked
-                    myLocaysh.showInfoWindow();
-                }
-
                 return true;
             }
         });

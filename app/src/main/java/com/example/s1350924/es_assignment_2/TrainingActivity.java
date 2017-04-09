@@ -19,7 +19,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -29,15 +28,7 @@ import static com.example.s1350924.es_assignment_2.R.id.fab_help;
 
 public class TrainingActivity extends Activity {
 
-    ImageView stickman;
-
-    ArrayList<Float> animationXCoords;
-    ArrayList<Float> animationYCoords;
     static int currentAnimationIndex;
-
-    // The database is here
-    public DatabaseHelper dh;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

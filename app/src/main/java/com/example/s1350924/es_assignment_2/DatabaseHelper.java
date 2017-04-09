@@ -153,7 +153,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor res;
 
         // Store
-        ArrayList<Integer> candidateIDs = new ArrayList<Integer>();
+        ArrayList<Integer> distDifferences = new ArrayList<Integer>();
+        ArrayList<Integer> numberOfMatchingBSSIDs = new ArrayList<Integer>();
 
         // Get the lowest point ID in the database
         res = mDatabase.rawQuery("SELECT MIN(PointID) FROM pointTable",null);
@@ -164,40 +165,143 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         res = mDatabase.rawQuery("SELECT MAX(PointID) FROM pointTable",null);
         int highestID =res.getInt(0);
 
-        // Iterate through all the points in the database
-        for(int i = lowestID; i < highestID; i++){
+        // Initialise the values to 0 for both arrays.
+        // Must do this as values in the arrays will be incremented, therefore we start at 0
+        for(int i = 0; i <= highestID; i++){
+            distDifferences.add(i, 0);
+            numberOfMatchingBSSIDs.add(i,0);
+        }
 
-            // Get all the BSSIDs from that particular point
-            res = mDatabase.rawQuery("SELECT BSSID FROM pointTable WHERE PointID=" + i,null );
 
-            // Iterate over the results from
-            if(res.moveToFirst()){
-                // Iterate through all the resulting BSSIDs
+
+        // Iterate through all the BSSIDs that we got as input to this method for our current point
+        for(int i = 0; i <  BSSID_arr.size(); i++){
+            String currBSSID = BSSID_arr.get(i);
+            int currStrength = signalStrength_arr.get(i);
+
+            // Get all the signal strengths in the database that match this BSSID
+            Cursor id = mDatabase.rawQuery("SELECT PointID FROM pointTable WHERE BSSID=" + currBSSID,null );
+
+            // Get the first ID point from the cursor
+            if(id.moveToFirst()){
+
+                // Iterate through all the resulting IDs, and get the matching SignalStrength for that BSSID
                 do{
-                    // Iterate through all the BSSIDs gathered for the current point
-                    for(int j = 0; j < BSSID_arr.size(); j++){
+                    int idStr = id.getInt(0);
+                    Cursor strengths = mDatabase.rawQuery("SELECT SignalStrength FROM pointTable WHERE BSSID="
+                            + currBSSID+" AND PointID="+idStr,null );
+                    strengths.moveToFirst();
+                    int dbSigStrength = strengths.getInt(0);
 
-                    }
-                } while(res.moveToNext());
+                    int strengthDifference = Math.abs(dbSigStrength -  currStrength);
+
+                    // If there are not yet values added into the difference array
+
+                    // Add the new strength difference to the existing strength difference for that
+                    // point. This will be averaged after all differences are counted, using
+                    // the corresponding value from numberOfMatchingBSSIDs
+                    int newVal = distDifferences.get(idStr) +strengthDifference;
+                    distDifferences.add(idStr,newVal);
+
+                    // Increment the number of matching BSSIDs.
+                    // Only difference scores with a high enough number of matched BSSIDs will be considered
+                    // This is to prevent the situation where one or two scans match very well, however there
+                    // is a better match somewhere
+                    newVal = numberOfMatchingBSSIDs.get(idStr)+1;
+                    numberOfMatchingBSSIDs.add(idStr,newVal);
+
+                } while(id.moveToNext());
             }
 
         }
 
 
+        /*
+         * Use the two arrays:
+         * Total differences for each ID point - distDifferences
+         * Total number of matches for each ID point - numberOfMatchingBSSIDs
+         *
+         * First ensure the points where numberOfMatchingBSSIDs is at least at the threshold value
+         * This is to ensure that we have enough matching sample BSSIDs for a candidate point.
+         *
+         * If this condition is met, then take the average distance difference.
+         * Store the
+         */
+
+        int matchThreshold = 10;
+        int closestPointID = -1;
+        double lowestAvgDistance = -1.0;
+
+        // Iterate through all matched data from the database above
+        for(int i = 0; i < numberOfMatchingBSSIDs.size(); i++){
+            int numOfMatches = numberOfMatchingBSSIDs.get(i);
+            // Ensure that we exceed the match threshold number
+            if(numOfMatches >= matchThreshold){
+                // Compute the avgDist
+                double avgDist = distDifferences.get(i)/numOfMatches;
+
+                // If we do not yet have a value, simply add this one in
+                if(lowestAvgDistance == -1.0){
+                    lowestAvgDistance = avgDist;
+                    closestPointID = i;
+                }else{
+                    // Otherwise, only replace the lowestAvgDistance with the current avgDist if
+                    // avgDist is lower
+                    if(avgDist < lowestAvgDistance){
+                        lowestAvgDistance = avgDist;
+                        closestPointID = i;
+                    }
+                }
+            }
+        }
 
 
+        // Now that we have found the closestPointID, we go into the database one final
+        // time, and extract the x-y coordinates for that point.
+        // Place them into xyArr, x coordinate at index 0 and y coordinate at index 1, and return the array
+        //
+        // The special case where we found no matches, gives us -1, -1 for the x-y coordinates
+        // This will translate to a message to users that says "Tracking currently unavailable,
+        // you are outwith the trained range."
+
+
+
+        // Case where no points were found
+        if(closestPointID == -1){
+            xyArr[0] = -1;
+            xyArr[1] = -1;
+        }else{
+            // Search the database for the correct xCoord
+            res = mDatabase.rawQuery("SELECT xCoord FROM pointTable WHERE PointID=" + closestPointID,null );
+            // Get the xCoord from the cursor
+            res.moveToFirst();
+            xyArr[0] = res.getInt(0);
+
+            // Search the database for the correct yCoord
+            res = mDatabase.rawQuery("SELECT yCoord FROM pointTable WHERE PointID=" + closestPointID,null );
+            // Get the yCoord from the cursor
+            res.moveToFirst();
+            xyArr[1] = res.getInt(0);
+        }
 
         // Close the database
         mDatabase.close();
 
         // Return the array containing x coordinate and y coordinate of the nearest recorded point
         return xyArr;
-
     }
 
 
+    public ArrayList<Float> getAllXCoords(){
+        ArrayList<Float> xCoords;
+        return xCoords;
+    }
 
 
+    public ArrayList<Float> getAllYCoords(){
+        ArrayList<Float> yCoords;
+        return yCoords;
+    }
 }
 
 
