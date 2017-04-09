@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.s1350924.es_assignment_2.R.id.fab_help;
+import static com.example.s1350924.es_assignment_2.R.id.fab_next;
 
 public class TrainingActivity extends Activity {
 
@@ -42,17 +44,18 @@ public class TrainingActivity extends Activity {
 
         raiseExplanationDialogueBox(mycontext);
 
-        /*
-        FloatingActionButton fab_play_pause = (FloatingActionButton) findViewById(fab_pause);
-        fab_play_pause.setImageResource(android.R.drawable.ic_media_pause);
-        fab_play_pause.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fabnext = (FloatingActionButton) findViewById(fab_next);
+        fabnext.setImageResource(R.drawable.ic_arrow_forward_black_24dp);
+        fabnext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Should pause the training", Snackbar.LENGTH_LONG)
-                        .setAction("Pause", null).show();
+                Intent myIntent = new Intent(TrainingActivity.this, TrackingActivity.class);
+
+                // Start new activity with this new intent
+                TrainingActivity.this.startActivity(myIntent);
+
             }
         });
-        */
 
         // Help users can click if they forgot how to train
         FloatingActionButton question_button = (FloatingActionButton) findViewById(fab_help);
@@ -201,9 +204,6 @@ public class TrainingActivity extends Activity {
                 delayIndexIncrease();
             }
 
-            System.out.println("Number of invalidations is : "+numberOfInvalidations);
-            System.out.println("Number of data points is : "+xCoords.size());
-
             return true;
         }
 
@@ -223,11 +223,12 @@ public class TrainingActivity extends Activity {
             new CountDownTimer(totalMilliseconds, millisecondsPerFrame) {
                 public void onTick(long millisUntilFinished) {
                     if(currentAnimationIndex == xCoords.size()-1){
+                        Toast.makeText(context, "Touch the arrow to begin tracking yourself!",
+                                Toast.LENGTH_LONG).show();
                         cancel();
                     }else {
                         // Re-draw the onDraw() method, this moves the green dot to the next point
                         invalidate();
-
 
                         wifiScanAndDatabaseEntry();
 

@@ -146,9 +146,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Open the database
         SQLiteDatabase mDatabase = this.getWritableDatabase();
 
-
-
-
         // The cursor that wil be used to access the database query results
         Cursor res;
 
@@ -163,6 +160,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Get the highest point ID in the database
         res = mDatabase.rawQuery("SELECT MAX(PointID) FROM pointTable",null);
+        res.moveToFirst();
         int highestID =res.getInt(0);
 
         // Initialise the values to 0 for both arrays.
@@ -180,7 +178,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int currStrength = signalStrength_arr.get(i);
 
             // Get all the signal strengths in the database that match this BSSID
-            Cursor id = mDatabase.rawQuery("SELECT PointID FROM pointTable WHERE BSSID=" + currBSSID,null );
+            Cursor id = mDatabase.rawQuery("SELECT PointID FROM pointTable WHERE BSSID=\'" + currBSSID+"\' ",null );
 
             // Get the first ID point from the cursor
             if(id.moveToFirst()){
@@ -188,8 +186,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 // Iterate through all the resulting IDs, and get the matching SignalStrength for that BSSID
                 do{
                     int idStr = id.getInt(0);
-                    Cursor strengths = mDatabase.rawQuery("SELECT SignalStrength FROM pointTable WHERE BSSID="
-                            + currBSSID+" AND PointID="+idStr,null );
+                    Cursor strengths = mDatabase.rawQuery("SELECT SignalStrength FROM pointTable WHERE BSSID= \'"
+                            + currBSSID+"\' AND PointID=\'"+idStr+"\'",null );
                     strengths.moveToFirst();
                     int dbSigStrength = strengths.getInt(0);
 
@@ -272,13 +270,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             xyArr[1] = -1;
         }else{
             // Search the database for the correct xCoord
-            res = mDatabase.rawQuery("SELECT xCoord FROM pointTable WHERE PointID=" + closestPointID,null );
+            res = mDatabase.rawQuery("SELECT xCoord FROM pointTable WHERE PointID=\'" + closestPointID+"\'",null );
             // Get the xCoord from the cursor
             res.moveToFirst();
             xyArr[0] = res.getInt(0);
 
             // Search the database for the correct yCoord
-            res = mDatabase.rawQuery("SELECT yCoord FROM pointTable WHERE PointID=" + closestPointID,null );
+            res = mDatabase.rawQuery("SELECT yCoord FROM pointTable WHERE PointID=\'" + closestPointID+"\'",null );
             // Get the yCoord from the cursor
             res.moveToFirst();
             xyArr[1] = res.getInt(0);
@@ -293,13 +291,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     public ArrayList<Float> getAllXCoords(){
-        ArrayList<Float> xCoords;
+        ArrayList<Float> xCoords = new ArrayList<Float>();
         return xCoords;
     }
 
 
     public ArrayList<Float> getAllYCoords(){
-        ArrayList<Float> yCoords;
+        ArrayList<Float> yCoords = new ArrayList<Float>();
         return yCoords;
     }
 }

@@ -16,10 +16,9 @@
         android:layout_height="match_parent"
         class="com.example.s1350924.es_assignment_2.TrackingActivity$locationTracker"
         android:id="@+id/animatedView"
-        android:layout_gravity="left|top"
-        />
+        android:layout_gravity="left|top" />
 
-    <include layout="@layout/content_training" />
+    <include layout="@layout/content_tracking" />
 
 
     <android.support.design.widget.FloatingActionButton
@@ -29,7 +28,12 @@
         android:layout_gravity="top|end"
         android:layout_margin="@dimen/fab_margin" />
 
-
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/map_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin" />
 
 
 </RelativeLayout>
