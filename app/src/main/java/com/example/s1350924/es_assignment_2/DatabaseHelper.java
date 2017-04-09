@@ -247,7 +247,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         double lowestAvgDistance = -1.0;
 
         // Iterate through all matched data from the database above
-        for(int i = 0; i < numberOfMatchingBSSIDs.size(); i++){
+        for(int i = 1; i < numberOfMatchingBSSIDs.size(); i++){
             int numOfMatches = numberOfMatchingBSSIDs.get(i);
             // Ensure that we exceed the match threshold number
             if(numOfMatches >= matchThreshold){
@@ -280,19 +280,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 
-        // Case where no points were found
+        // Cover the case where no points were found
         if(closestPointID == -1){
             xyArr[0] = -1;
             xyArr[1] = -1;
         }else{
             // Search the database for the correct xCoord
-            res = mDatabase.rawQuery("SELECT xCoord FROM pointTable WHERE PointID=" + closestPointID+"",null );
+            res = mDatabase.rawQuery("SELECT xCoord FROM pointTable WHERE PointID=" + closestPointID,null );
             // Get the xCoord from the cursor
             res.moveToFirst();
             xyArr[0] = res.getInt(0);
 
             // Search the database for the correct yCoord
-            res = mDatabase.rawQuery("SELECT yCoord FROM pointTable WHERE PointID=" + closestPointID+"",null );
+            res = mDatabase.rawQuery("SELECT yCoord FROM pointTable WHERE PointID=" + closestPointID,null );
             // Get the yCoord from the cursor
             res.moveToFirst();
             xyArr[1] = res.getInt(0);
