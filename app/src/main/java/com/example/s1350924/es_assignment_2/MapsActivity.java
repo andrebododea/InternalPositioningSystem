@@ -14,9 +14,13 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.GroundOverlay;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import static com.example.s1350924.es_assignment_2.R.id.map;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -37,7 +41,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+                .findFragmentById(map);
 
         mapFragment.getMapAsync(this);
     }
@@ -58,29 +62,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap = googleMap;
 
-        // Refresh values for the GPS coordinates
-        globalPosition();
+        // Set the wee blue dot to get current location
+        try{
+            mMap.setMyLocationEnabled(true);
+        }
+        catch (SecurityException e) { System.out.println("You haven't added permissions."); }
 
-        // Add a marker at current location and move the camera
-        LatLng myLocation = new LatLng(mLat, mLong);
+        // Enable Zoom controls on the map
+        mMap.getUiSettings().setZoomControlsEnabled(true);
 
-        myLocaysh = mMap.addMarker(new MarkerOptions().position(myLocation)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                .alpha(0.4f)
-                .title("Your Location")
-        );
+        // Set level support for indoor view of buildings
+        mMap.getUiSettings().setIndoorLevelPickerEnabled(true);
 
-        myLocaysh.showInfoWindow();
+        // Enable the google maps compass
+        mMap.getUiSettings().setCompassEnabled(true);
 
-        // Set the map focus
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
+        /*
+         * Add in the fleeming jenkin building floor plan to the map.
+         * Scales a floor plan image to size and then overlays over the building on the map.
+         */
 
-        // Set the zoom onto the current location
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLat, mLong), 15.0f));
+        // Set coordinates for the building
+       // LatLng fleemingJenkin = new LatLng(55.922428, -3.172451);
+        LatLng fleemingJenkin = new LatLng(55.922434, -3.172458);
+
+        // Add the floor plan overlayed onto the floor plan, using the scaled bitmap
+        GroundOverlayOptions newarkMap = new GroundOverlayOptions()
+                .image(BitmapDescriptorFactory.fromResource(R.drawable.fleeming_jenkin_ground_floor))
+                .position(fleemingJenkin,1171f/15, 634f/20);
 
 
-        LatLng fleemingJenkin = new LatLng(55.922413, -3.172393);
-        fleemingJenkinMarker = mMap.addMarker(new MarkerOptions().position(fleemingJenkin).title("Marker at coordinates " +
+        // Add an overlay to the map, retaining a handle to the GroundOverlay object.
+        // This is the final floor plan embedded into the map
+        GroundOverlay imageOverlay = mMap.addGroundOverlay(newarkMap);
+        // Rotate the image 237.5 degrees relative to true north
+        imageOverlay.setBearing(237.5f);
+
+        /*
+         *   Add in the marker for the fleeming jenkin onto the map
+         *   It will be orange and clickable
+         */
+
+        // Add in an orange marker for the fleeming jenkin building
+        LatLng fjMarkerPos = new LatLng(55.922738, -3.172604);
+        fleemingJenkinMarker = mMap.addMarker(new MarkerOptions().position(fjMarkerPos).title("Marker at coordinates " +
                 mLat + ", " + mLong)
                 .title("Fleeming Jenkin Building, KB")
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
@@ -103,19 +128,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return true;
             }
         });
+
+    //    mMap.setOnGroundOverlayClickListener(GoogleMap.OnGroundOverlayClickListener listener){
+
+    //    }
     }
 
     public boolean onMarkerClick(final Marker marker) {
 
         if (marker.equals(fleemingJenkinMarker)) {
-
+            Intent myIntent = new Intent(MapsActivity.this, DrawActivity.class);
+            MapsActivity.this.startActivity(myIntent);
         }
         return true;
     }
 
+    public void onLocationChanged(Location location){
+
+        // Refresh values for the GPS coordinates
+        globalPosition();
+
+        // Add a marker at current location and move the camera
+        LatLng myLocation = new LatLng(mLat, mLong);
+
+        // Set the map focus
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
+
+        // Set the zoom onto the current location
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLat, mLong), 15.0f));
+
+    }
+
 
     /*
-     * Calculate values of GPS coordinates, and updates the global variables mLat and mLong.
+     * Calculate values of current GPS coordinates, and updates the global variables mLat and mLong.
      * mLat is the current latitude position, and mLong is the current longitude position
      * and whenever we enter the program, in onCreate(), we call globalPosition() in order
      * to update these with the last known position

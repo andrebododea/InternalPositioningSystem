@@ -81,6 +81,4 @@ public class StartActivity extends AppCompatActivity {
             // The callback method gets the result of the request.
         }
     }
-
-
 }

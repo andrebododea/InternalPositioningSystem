@@ -146,14 +146,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Open the database
         SQLiteDatabase mDatabase = this.getWritableDatabase();
 
-        // Return all the values
-        Cursor res = mDatabase.rawQuery("select ",null);
 
-        // While there are still more values in res
-        // We will loop through all fields returned by the query above
-        while(res.moveToNext()){
+
+
+        // The cursor that wil be used to access the database query results
+        Cursor res;
+
+        // Store
+        ArrayList<Integer> candidateIDs = new ArrayList<Integer>();
+
+        // Get the lowest point ID in the database
+        res = mDatabase.rawQuery("SELECT MIN(PointID) FROM pointTable",null);
+        res.moveToFirst();
+        int lowestID =res.getInt(0);
+
+        // Get the highest point ID in the database
+        res = mDatabase.rawQuery("SELECT MAX(PointID) FROM pointTable",null);
+        int highestID =res.getInt(0);
+
+        // Iterate through all the points in the database
+        for(int i = lowestID; i < highestID; i++){
+
+            // Get all the BSSIDs from that particular point
+            res = mDatabase.rawQuery("SELECT BSSID FROM pointTable WHERE PointID=" + i,null );
+
+            // Iterate over the results from
+            if(res.moveToFirst()){
+                // Iterate through all the resulting BSSIDs
+                do{
+                    // Iterate through all the BSSIDs gathered for the current point
+                    for(int j = 0; j < BSSID_arr.size(); j++){
+
+                    }
+                } while(res.moveToNext());
+            }
 
         }
+
+
+
+
 
         // Close the database
         mDatabase.close();

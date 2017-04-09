@@ -279,7 +279,6 @@ public class TrainingActivity extends Activity {
             // Pass the scan data to the DatabaseHelper in order to add into the database
             DatabaseHelper db = new DatabaseHelper(context);
             db.insertDataForSomePoint(xc, yc,networkAddresses, signalStrengths);
-
         }
 
         @Override
@@ -295,6 +294,4 @@ public class TrainingActivity extends Activity {
             numberOfInvalidations++;
         }
     }
-
-
 }
