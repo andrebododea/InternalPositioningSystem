@@ -17,7 +17,6 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -32,7 +31,7 @@ import static android.R.attr.x;
 import static android.R.attr.y;
 import static com.example.s1350924.es_assignment_2.R.id.map_fab;
 
-public class TrackingActivity extends AppCompatActivity {
+public class TrackingActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +108,10 @@ public class TrackingActivity extends AppCompatActivity {
 
         private Bitmap fleemingJenkin;
 
+        float nearestXcoord;
+        float nearestYcoord;
+
+
 
         // Three contructor overloads are required for views inflated from XML.
         // The first takes a Context argument
@@ -144,13 +147,23 @@ public class TrackingActivity extends AppCompatActivity {
 
             fleemingJenkin = scaleBitMapToScreenSize();
 
+            // Initialise the values outside of the frame
+            nearestXcoord = -1;
+            nearestYcoord= -1;
+
         }
 
 
         // When the screen is tapped, the animation begins
         @Override
         public boolean onTouchEvent(MotionEvent event) {
+            // Get nearest
+            float[] xyArr =  nearestNeighbourCaller();
 
+            nearestXcoord = xyArr[0];
+            nearestYcoord= xyArr[1];
+
+            invalidate();
 
             return true;
         }
@@ -167,14 +180,10 @@ public class TrackingActivity extends AppCompatActivity {
             canvas.drawBitmap(fleemingJenkin, 0, 0, null);
             canvas.drawPath(path, paint);
 
-            // Get nearest
-            float[] xyArr =  nearestNeighbourCaller();
-            float xc = xyArr[0];
-            float yc = xyArr[1];
             Paint paint = new Paint();
             paint.setStyle(Paint.Style.FILL);
             paint.setColor(Color.GREEN);
-            canvas.drawCircle(xc, yc, 30, paint );
+            canvas.drawCircle(nearestXcoord, nearestYcoord, 30, paint );
         }
 
 
@@ -300,11 +309,5 @@ public class TrackingActivity extends AppCompatActivity {
             Bitmap floor_plan_bitmap = s_Bitmap.copy(Bitmap.Config.ARGB_8888, true);
             return floor_plan_bitmap;
         }
-
-
-
     }
-
-
-
 }

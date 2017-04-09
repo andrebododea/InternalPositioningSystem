@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 // Help also from: http://www.androiddesignpatterns.com/2012/05/correctly-managing-your-sqlite-database.html
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static DatabaseHelper mInstance = null;
+
+    String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "appDatab ase.db";
     private static final String TABLE_NAME = "pointTable";
@@ -51,6 +54,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                        ArrayList<String> BSSID_arr,
                                        ArrayList<Integer> signalStrength_arr) {
 
+        System.out.println("BSSID ARR is of size: "+BSSID_arr.size()+"\n");
+        System.out.println("signal strength ARR is of size: "+signalStrength_arr.size()+"\n");
+
         // Open the database
         SQLiteDatabase mDatabase = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -69,7 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Do not want to overwrite data.
         int numberOfColsReturned = res.getColumnCount();
         System.out.println("Number of columns returned from first query: " +numberOfColsReturned);
-        if (numberOfColsReturned==1 ) {
+        if (numberOfColsReturned==1 || numberOfColsReturned==0 ) {
 
                 // If these coordinates are new to the database:
                 // Get the highest PointID so far. The PointID of the next point
@@ -167,9 +173,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Must do this as values in the arrays will be incremented, therefore we start at 0
         for(int i = 0; i <= highestID; i++){
             distDifferences.add(i, 0);
+            System.out.println("differences: "+distDifferences.get(i) + "\n");
             numberOfMatchingBSSIDs.add(i,0);
+            System.out.println("BSSID match #: "+numberOfMatchingBSSIDs.get(i) + "\n");
         }
-
 
 
         // Iterate through all the BSSIDs that we got as input to this method for our current point
@@ -177,18 +184,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             String currBSSID = BSSID_arr.get(i);
             int currStrength = signalStrength_arr.get(i);
 
-            // Get all the signal strengths in the database that match this BSSID
-            Cursor id = mDatabase.rawQuery("SELECT PointID FROM pointTable WHERE BSSID=\'" + currBSSID+"\' ",null );
-
+            // Get the IDs of all the signal strengths in the database that match this BSSID
+            Cursor id = mDatabase.rawQuery("SELECT DISTINCT PointID FROM pointTable WHERE BSSID='" + currBSSID+"'",null );
+            System.out.println("Entries from id query is: "+id.getCount());
             // Get the first ID point from the cursor
-            if(id.moveToFirst()){
+            if(id.moveToFirst() && id.getCount() > 0){
 
                 // Iterate through all the resulting IDs, and get the matching SignalStrength for that BSSID
                 do{
                     int idStr = id.getInt(0);
-                    Cursor strengths = mDatabase.rawQuery("SELECT SignalStrength FROM pointTable WHERE BSSID= \'"
-                            + currBSSID+"\' AND PointID=\'"+idStr+"\'",null );
+                   // System.out.println("The matched IDs are: "+idStr+"\n");
+                    Cursor strengths = mDatabase.rawQuery("SELECT SignalStrength FROM pointTable WHERE BSSID= '"
+                            + currBSSID+"' AND PointID="+idStr,null );
+
                     strengths.moveToFirst();
+
                     int dbSigStrength = strengths.getInt(0);
 
                     int strengthDifference = Math.abs(dbSigStrength -  currStrength);
@@ -208,10 +218,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     newVal = numberOfMatchingBSSIDs.get(idStr)+1;
                     numberOfMatchingBSSIDs.add(idStr,newVal);
 
+                    // Close the cursor to prevent memory leaks
+                    strengths.close();
+
+
                 } while(id.moveToNext());
             }
-
+            // Close the cursor to prevent memory leaks
+            id.close();
         }
+
 
 
         /*
@@ -270,13 +286,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             xyArr[1] = -1;
         }else{
             // Search the database for the correct xCoord
-            res = mDatabase.rawQuery("SELECT xCoord FROM pointTable WHERE PointID=\'" + closestPointID+"\'",null );
+            res = mDatabase.rawQuery("SELECT xCoord FROM pointTable WHERE PointID=" + closestPointID+"",null );
             // Get the xCoord from the cursor
             res.moveToFirst();
             xyArr[0] = res.getInt(0);
 
             // Search the database for the correct yCoord
-            res = mDatabase.rawQuery("SELECT yCoord FROM pointTable WHERE PointID=\'" + closestPointID+"\'",null );
+            res = mDatabase.rawQuery("SELECT yCoord FROM pointTable WHERE PointID=" + closestPointID+"",null );
             // Get the yCoord from the cursor
             res.moveToFirst();
             xyArr[1] = res.getInt(0);
@@ -285,6 +301,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Close the database
         mDatabase.close();
 
+        System.out.println("The chosen point is at x= " + xyArr[0] + ", y= "+ xyArr[1]);
+
         // Return the array containing x coordinate and y coordinate of the nearest recorded point
         return xyArr;
     }
@@ -292,14 +310,70 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public ArrayList<Float> getAllXCoords(){
         ArrayList<Float> xCoords = new ArrayList<Float>();
+
+        // Open the database
+        SQLiteDatabase mDatabase = this.getWritableDatabase();
+
+        Cursor res = mDatabase.rawQuery("SELECT xCoord FROM pointTable",null );
+
+        if(res.moveToFirst() && res.getCount() > 0) {
+            do {
+                float coord = res.getFloat(0);
+                xCoords.add(coord);
+            } while (res.moveToNext());
+        }
+        // Close the database
+        mDatabase.close();
+
         return xCoords;
     }
 
 
     public ArrayList<Float> getAllYCoords(){
         ArrayList<Float> yCoords = new ArrayList<Float>();
+
+        // Open the database
+        SQLiteDatabase mDatabase = this.getWritableDatabase();
+
+        Cursor res = mDatabase.rawQuery("SELECT xCoord FROM pointTable",null );
+
+        if(res.moveToFirst() && res.getCount() > 0) {
+            do {
+                float coord = res.getFloat(0);
+                yCoords.add(coord);
+            } while (res.moveToNext());
+        }
+        // Close the database
+        mDatabase.close();
+
         return yCoords;
     }
+
+    // For debugging the SQL table
+    public String getTableAsString() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String tableName = "pointTable";
+        Log.d(TAG, "getTableAsString called");
+        String tableString = String.format("Table %s:\n", tableName);
+        Cursor allRows  = db.rawQuery("SELECT * FROM " + tableName, null);
+        if (allRows.moveToFirst() ){
+            String[] columnNames = allRows.getColumnNames();
+            do {
+                for (String name: columnNames) {
+                    tableString += String.format("%s: %s\n", name,
+                            allRows.getString(allRows.getColumnIndex(name)));
+                }
+                tableString += "\n";
+
+            } while (allRows.moveToNext());
+        }
+
+        return tableString;
+    }
+
+
 }
+
+
 
 

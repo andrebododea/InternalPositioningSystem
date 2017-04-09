@@ -89,7 +89,7 @@ public class TrainingActivity extends Activity {
                 .setPositiveButton("Got it", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         Toast.makeText(context, "Touch the screen anywhere to start training.",
-                                Toast.LENGTH_LONG).show();
+                                Toast.LENGTH_SHORT).show();
 
                     }
                 });
@@ -154,6 +154,8 @@ public class TrainingActivity extends Activity {
             this.context = context;
             Activity activity = (Activity) context;
 
+            currentAnimationIndex = 0;
+
 
             // Get byte array that contains the blueprint bitmap from the intent
             // This was passed in from the DrawActivity activity
@@ -173,6 +175,15 @@ public class TrainingActivity extends Activity {
             paint.setColor(Color.RED);
             paint.setStyle(Paint.Style.STROKE);
             paint.setStrokeJoin(Paint.Join.ROUND);
+
+
+            // Test the table and print all entries.
+            // WARNING - IF TABLE IS > 1000 ENTRIES THIS WILL CRASH THE APP
+            /*
+            DatabaseHelper db = new DatabaseHelper(context);
+            String dbstring = db.getTableAsString();
+            System.out.println(dbstring);
+            */
 
             // Start path
             if(xCoords.size() > 0 && yCoords.size()>0) {
