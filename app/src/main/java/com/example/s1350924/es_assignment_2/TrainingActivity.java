@@ -270,8 +270,8 @@ public class TrainingActivity extends Activity {
 
                 // Network's signal level
 
-                int level = WifiManager.calculateSignalLevel(scanResult.level, 50);
-                signalStrengths.add(level);
+          //    int level = WifiManager.calculateSignalLevel(scanResult.level, 50);
+                signalStrengths.add(Math.abs(scanResult.level));
            //     System.out.println("Level is " + level + " out of 50");
             }
 

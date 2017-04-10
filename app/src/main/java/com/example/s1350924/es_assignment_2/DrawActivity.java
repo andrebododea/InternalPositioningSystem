@@ -225,6 +225,9 @@ public class DrawActivity extends Activity {
                                             "Try again! Once you start drawing the old path will disappear."
                                             , Toast.LENGTH_SHORT);
                                     toast.show();
+
+                                    xCoords = new ArrayList<Float>();
+                                    yCoords = new ArrayList<Float>();
                                 }
                             });
 

@@ -135,6 +135,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                           ArrayList<String> BSSID_arr,
                                           ArrayList<Integer>  signalStrength_arr) {
 
+
         // The first value will be x coordinate, the second value will be y coordinte
         // This array will be returned
         float[] xyArr = new float[2];
@@ -215,7 +216,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                     int dbSigStrength = strengths.getInt(0);
 
-                    int strengthDifference = Math.abs(dbSigStrength -  currStrength);
+                    int strengthDifference = Math.abs(Math.abs(dbSigStrength) -  Math.abs(currStrength));
+               //     System.out.println("strength diff : "+Math.abs(dbSigStrength)+" - "+ Math.abs(currStrength)+" = "+strengthDifference+"\n");
 
                     // If there are not yet values added into the difference array
 
@@ -223,6 +225,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     // point. This will be averaged after all differences are counted, using
                     // the corresponding value from numberOfMatchingBSSIDs
                     int newVal = distDifferences.get(idStr) +strengthDifference;
+
                     distDifferences.set(idStr,newVal);
 
                     // Increment the number of matching BSSIDs.
@@ -259,7 +262,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
          * Store the
          */
 
-        int matchThreshold = 3;
+        // int matchThreshold = 1;
+        int matchThreshold = 1;
         int closestPointID = -1;
         double lowestAvgDistance = -1.0;
 
@@ -269,13 +273,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             // Ensure that we exceed the match threshold number
             if(numOfMatches >= matchThreshold){
 
-                // Weighting factor is +0.05 for each matched data point
-                double weighting_factor = numOfMatches*0.05;
-
                 // Compute the avgDist
-                double avgDist = distDifferences.get(k)/numOfMatches+weighting_factor;
+                double avgDist = distDifferences.get(k)/numOfMatches;
 
-               System.out.println("AVG Dist of this point is: " + avgDist + " and pointId=" + k+", and lowest recorded avg Distance is: "+lowestAvgDistance+ " at point "+closestPointID);
+             //  System.out.println("AVG Dist of this point is: " + avgDist + ", with "+ numOfMatches +" matches and pointId=" + k+", and lowest recorded avg Distance is: "+lowestAvgDistance+ " at point "+closestPointID);
 
                 if(avgDist != 0.0) {
                     // If we do not yet have a value, simply add this one in
@@ -285,7 +286,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     } else {
                         // Otherwise, only replace the lowestAvgDistance with the current avgDist if
                         // avgDist is lower
-                        if (avgDist < lowestAvgDistance) {
+                        if (avgDist <= lowestAvgDistance) {
                             lowestAvgDistance = avgDist;
                             closestPointID = k;
                         }
@@ -324,7 +325,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         // This is for debugging
-        System.out.println("PointID of chosen point is: "+ closestPointID);
+        // System.out.println("PointID of chosen point is: "+ closestPointID);
 
 
         // Close the database
@@ -335,7 +336,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 
-        System.out.println("The chosen point is at x= " + xyArr[0] + ", y= "+ xyArr[1]);
+       //  System.out.println("The chosen point is at x= " + xyArr[0] + ", y= "+ xyArr[1]);
 
         // Return the array containing x coordinate and y coordinate of the nearest recorded point
         return xyArr;

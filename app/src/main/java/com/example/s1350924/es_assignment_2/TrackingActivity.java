@@ -30,13 +30,16 @@ import java.util.List;
 
 import static android.R.attr.x;
 import static android.R.attr.y;
+import static com.example.s1350924.es_assignment_2.R.id.fab_location;
 import static com.example.s1350924.es_assignment_2.R.id.fab_show;
 import static com.example.s1350924.es_assignment_2.R.id.map_fab;
+
 
 public class TrackingActivity extends Activity {
 
     static boolean endTimer;
     static boolean showGrid;
+    static boolean placeLocationDot;
 
 
 
@@ -64,10 +67,30 @@ public class TrackingActivity extends Activity {
             }
         });
 
+        placeLocationDot = true;
+
+        FloatingActionButton locationFab = (FloatingActionButton) findViewById(fab_location);
+        locationFab.setImageResource(R.drawable.location_button);
+
+        locationFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               // placeLocationDot=true;
+
+                /*
+               if(placeLocationDot){
+                   placeLocationDot = false;
+                }else{
+                   placeLocationDot = true;
+               }
+               */
+            }
+        });
+
+
+
         // When true will cause all stored values in database to be shown
         showGrid = false;
-
-
 
         FloatingActionButton show_paths_button = (FloatingActionButton) findViewById(fab_show);
         show_paths_button.setImageResource(R.drawable.grid_button);
@@ -91,10 +114,6 @@ public class TrackingActivity extends Activity {
                 }.start();
             }
         });
-
-
-
-
     }
 
 
@@ -196,17 +215,13 @@ public class TrackingActivity extends Activity {
 
         }
 
-
         // When the screen is tapped, the animation begins
         @Override
         public boolean onTouchEvent(MotionEvent event) {
-            if(event.getAction() == MotionEvent.ACTION_DOWN)
-                trackLocationTimer();
-
+            placeLocationDot = true;
+            invalidate();
             return true;
         }
-
-
 
 
         @Override
@@ -214,6 +229,14 @@ public class TrackingActivity extends Activity {
 
             canvas.drawBitmap(fleemingJenkin, 0, 0, null);
             drawAllRecordedPoints(canvas); // Will only result in a drawn path if the boolean is set to true
+
+            if(placeLocationDot) {
+                float[] xyArr = nearestNeighbourCaller();
+                nearestXcoord = xyArr[0];
+                nearestYcoord = xyArr[1];
+                placeLocationDot = false;
+            }
+
             canvas.drawPath(path, paint);
 
             Paint paint = new Paint();
@@ -243,7 +266,7 @@ public class TrackingActivity extends Activity {
 
                 // Network's signal level
                 int level = WifiManager.calculateSignalLevel(scanResult.level, 20);
-                signalStrengths.add(level);
+                signalStrengths.add(Math.abs(scanResult.level));
                 //     System.out.println("Level is " + level + " out of 50");
             }
 
@@ -253,40 +276,6 @@ public class TrackingActivity extends Activity {
             // Find the nearest point via the returnNearestNeighbour method within the DatabaseHelper
             float[] xyCoords = db.returnNearestNeighbour(x,y,networkAddresses,signalStrengths);
             return xyCoords;
-        }
-
-
-        private void trackLocationTimer(){
-            int numberOfIterations = 50000;
-            int millisecondsPerFrame = 1000;
-
-            int totalMilliseconds = millisecondsPerFrame * numberOfIterations;
-            /*
-             * TIMER
-             * THIS IS WHERE THE DATABASE FUNCTIONS ARE CALLED
-             * THIS IS WHERE THE DOT IS REDRAWN FOR ANIMATION
-             * PROBABLY THE MOST IMPORTANT PART OF THE ACTIVITY
-             */
-            new CountDownTimer(totalMilliseconds, millisecondsPerFrame) {
-                public void onTick(long millisUntilFinished) {
-
-                    if(endTimer){
-                        cancel();
-                    }
-
-                    // Get nearest
-                    float[] xyArr =  nearestNeighbourCaller();
-
-                    nearestXcoord = xyArr[0];
-                    nearestYcoord= xyArr[1];
-
-                    invalidate();
-
-                }
-
-                public void onFinish() {}
-
-            }.start();
         }
 
 
