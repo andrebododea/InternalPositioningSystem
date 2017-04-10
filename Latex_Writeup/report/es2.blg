@@ -3,44 +3,44 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: es2.aux
 The style file: unsrt.bst
 Database file #1: es2.bib
-You've used 1 entry,
+You've used 7 entries,
             1791 wiz_defined-function locations,
-            451 strings with 3761 characters,
-and the built_in function-call counts, 441 in all, are:
-= -- 47
-> -- 8
-< -- 2
-+ -- 3
-- -- 2
-* -- 25
-:= -- 59
-add.period$ -- 4
-call.type$ -- 1
-change.case$ -- 1
+            482 strings with 4831 characters,
+and the built_in function-call counts, 1782 in all, are:
+= -- 163
+> -- 56
+< -- 4
++ -- 22
+- -- 15
+* -- 86
+:= -- 247
+add.period$ -- 22
+call.type$ -- 7
+change.case$ -- 7
 chr.to.int$ -- 0
-cite$ -- 1
-duplicate$ -- 23
-empty$ -- 42
-format.name$ -- 2
-if$ -- 108
+cite$ -- 7
+duplicate$ -- 94
+empty$ -- 196
+format.name$ -- 15
+if$ -- 427
 int.to.chr$ -- 0
-int.to.str$ -- 1
-missing$ -- 1
-newline$ -- 8
-num.names$ -- 1
-pop$ -- 5
+int.to.str$ -- 7
+missing$ -- 5
+newline$ -- 38
+num.names$ -- 7
+pop$ -- 41
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 19
+skip$ -- 61
 stack$ -- 0
-substring$ -- 40
-swap$ -- 14
-text.length$ -- 2
+substring$ -- 109
+swap$ -- 39
+text.length$ -- 4
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 0
-while$ -- 4
-width$ -- 2
-write$ -- 15
+while$ -- 18
+width$ -- 8
+write$ -- 76

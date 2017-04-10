@@ -1,3 +1,17 @@
+/*
+ *     Andre Bododea
+ *     s1350924
+ *     The University of Edinburgh
+ *
+ *
+ * This class is where everything starts off.
+ * Has some instructions for users.
+ * Has a button that takes us directly to the Google Maps view (MapsActivity)
+ *
+ *
+ */
+
+
 package com.example.s1350924.es_assignment_2;
 
 import android.app.Activity;
@@ -11,6 +25,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+
+
 
 public class StartActivity extends AppCompatActivity {
 

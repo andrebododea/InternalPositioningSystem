@@ -1,15 +1,11 @@
-package com.example.s1350924.es_assignment_2;
-
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-
-import java.util.ArrayList;
-
 /*
+ *     Andre Bododea
+ *     s1350924
+ *     The University of Edinburgh
+ *
+ *
+ *
+ *
  * This class extends SQLiteOpenHelper and will be used to handle everything database related
  *
  * This includes creating the database, submitting entries to the database, and computing database
@@ -49,6 +45,19 @@ import java.util.ArrayList;
  *
  *
  */
+
+
+package com.example.s1350924.es_assignment_2;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+import java.util.ArrayList;
+
 
 
 public class DatabaseHelper extends SQLiteOpenHelper {

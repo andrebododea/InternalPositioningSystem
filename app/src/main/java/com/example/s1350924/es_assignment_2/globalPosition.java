@@ -1,8 +1,24 @@
+/*
+ *     Andre Bododea
+ *     s1350924
+ *     The University of Edinburgh
+ *
+ *
+ *
+ * Gets the GPS position
+ *
+ * Used only for zooming in on the user's current position within the Google Map activity (MapsActivity)
+ *
+ *
+ */
+
+
 package com.example.s1350924.es_assignment_2;
 
 import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
+
 
 
 public class globalPosition extends Activity {

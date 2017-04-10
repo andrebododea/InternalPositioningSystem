@@ -1,5 +1,17 @@
 \begin{thebibliography}{1}
 
+\bibitem{shchekotov2014indoor}
+Maxim Shchekotov.
+\newblock Indoor localization method based on wi-fi trilateration technique.
+\newblock In {\em Proceeding of the 16th conference of fruct association},
+  2014.
+
+\bibitem{kashevnik2012comparative}
+Alexey Kashevnik and Maxim Shchekotov.
+\newblock Comparative analysis of indoor positioning systems based on
+  communications supported by smartphones.
+\newblock In {\em Proceedings of FRUCT conference}, pages 43--48, 2012.
+
 \bibitem{kaemarungsi2004modeling}
 Kamol Kaemarungsi and Prashant Krishnamurthy.
 \newblock Modeling of indoor positioning systems based on location
@@ -7,5 +19,30 @@ Kamol Kaemarungsi and Prashant Krishnamurthy.
 \newblock In {\em INFOCOM 2004. Twenty-third AnnualJoint Conference of the IEEE
   Computer and Communications Societies}, volume~2, pages 1012--1022. IEEE,
   2004.
+
+\bibitem{alsehly2010improving}
+F~Alsehly, R~Mohd~Sabri, Z~Sevak, and T~Arslan.
+\newblock Improving indoor positioning accuracy through a wi-fi handover
+  algorithm.
+\newblock In {\em International Technical Meeting, The University of Edinburgh,
+  Scotland, UK}, pages 131--139, 2010.
+
+\bibitem{oguejiofor2013outdoor}
+O~Oguejiofor, V~Okorogu, Abe Adewale, and B~Osuesu.
+\newblock Outdoor localization system using rssi measurement of wireless sensor
+  network.
+\newblock {\em International Journal of Innovative Technology and Exploring
+  Engineering}, 2(2):1--6, 2013.
+
+\bibitem{google_maps_api}
+Google.
+\newblock Google maps android api.
+\newblock \url{https://developers.google.com/maps/documentation/android-api/}.
+
+\bibitem{sqlite_api}
+Google.
+\newblock Sqlite android api.
+\newblock
+  \url{https://developer.android.com/reference/android/database/sqlite/package-summary.html}.
 
 \end{thebibliography}

@@ -1,3 +1,18 @@
+/*
+ *     Andre Bododea
+ *     s1350924
+ *     The University of Edinburgh
+ *
+ *
+ * Custom LocationListener class. It has getter methods to return the latitude and longitude
+ *
+ * This will be used to pinpoint the zoom on the current location. Useful for preparing the google
+ * map for viewers so that they don't need to spend 10-15 seconds zooming into the map and adjusting
+ * to encompass their current location.
+ *
+ */
+
+
 package com.example.s1350924.es_assignment_2;
 
 import android.location.Location;
@@ -6,14 +21,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 
-/*
- * Custom LocationListener class. It has getter methods to return the latitude and longitude
- *
- * This will be used to pinpoint the zoom on the current location. Useful for preparing the google
- * map for viewers so that they don't need to spend 10-15 seconds zooming into the map and adjusting
- * to encompass their current location.
- *
- */
 public class CurrentLocationListener implements LocationListener {
 
     public String coordinates;

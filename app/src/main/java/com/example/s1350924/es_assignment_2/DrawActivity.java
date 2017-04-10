@@ -1,3 +1,28 @@
+/*
+ *     Andre Bododea
+ *     s1350924
+ *     The University of Edinburgh
+ *
+ *
+ * This activity allows the user to draw a path with their finger. The user will then need to walk
+ * this path in order to train the dataset.
+ *
+ * In order to draw the path we extend the View object. We use a bitmap of our floorplan as our background
+ * and use a Path object to draw our path. This path connects the points drawn by the user's finger on
+ * the phone screen. We use a path because it's smoother than just drawing the points, which can be unevenly
+ * spread.
+ *
+ * We also use dialogue boxes and Toasts to provide instruction to the user as they go along. These are
+ * helpful at prompting the user as they use the app, and even just in case they forget how to use it.
+ *
+ * If the "question mark" button is pressed, we bring up the dialogue box with instructions.
+ *
+ * If the "forward arrow" button is pressed, we bring up the next activity, TrainingActivity.
+ */
+
+
+
+
 package com.example.s1350924.es_assignment_2;
 
 import android.app.Activity;
@@ -27,22 +52,6 @@ import java.util.ArrayList;
 import static com.example.s1350924.es_assignment_2.R.id.fab_help;
 
 
-/*
- * This activity allows the user to draw a path with their finger. The user will then need to walk
- * this path in order to train the dataset.
- *
- * In order to draw the path we extend the View object. We use a bitmap of our floorplan as our background
- * and use a Path object to draw our path. This path connects the points drawn by the user's finger on
- * the phone screen. We use a path because it's smoother than just drawing the points, which can be unevenly
- * spread.
- *
- * We also use dialogue boxes and Toasts to provide instruction to the user as they go along. These are
- * helpful at prompting the user as they use the app, and even just in case they forget how to use it.
- *
- * If the "question mark" button is pressed, we bring up the dialogue box with instructions.
- *
- * If the "forward arrow" button is pressed, we bring up the next activity, TrainingActivity.
- */
 
 public class DrawActivity extends Activity {
 

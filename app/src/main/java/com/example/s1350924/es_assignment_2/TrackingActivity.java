@@ -1,5 +1,24 @@
-package com.example.s1350924.es_assignment_2;
+/*
+ *     Andre Bododea
+ *     s1350924
+ *     The University of Edinburgh
+ *
+ *
+ * This activity is responsible for tracking the user as they walk around the map.
+ *
+ * This activity assumes that the user has already trained the database with a few points at least,
+ * and therefore accesses the database via DatabaseHelper, and uses the returnNearestNeighbour() method
+ * in order to find the point in the database which has the RSS scans with strengths as similar to the point
+ * as possible. The most similar will be chosen as the "nearest neighbour", and displayed on the map
+ * as the user's estimated location.
+ */
 
+
+
+
+
+
+package com.example.s1350924.es_assignment_2;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -33,17 +52,6 @@ import static android.R.attr.y;
 import static com.example.s1350924.es_assignment_2.R.id.fab_location;
 import static com.example.s1350924.es_assignment_2.R.id.fab_show;
 import static com.example.s1350924.es_assignment_2.R.id.map_fab;
-
-
-/*
- * This activity is responsible for tracking the user as they walk around the map.
- *
- * This activity assumes that the user has already trained the database with a few points at least,
- * and therefore accesses the database via DatabaseHelper, and uses the returnNearestNeighbour() method
- * in order to find the point in the database which has the RSS scans with strengths as similar to the point
- * as possible. The most similar will be chosen as the "nearest neighbour", and displayed on the map
- * as the user's estimated location.
- */
 
 
 
