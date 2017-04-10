@@ -9,12 +9,48 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-/**
- * create custom DatabaseHelper class that extends SQLiteOpenHelper
+/*
+ * This class extends SQLiteOpenHelper and will be used to handle everything database related
+ *
+ * This includes creating the database, submitting entries to the database, and computing database
+ * operations in order to find the nearest points to the user's current location.
+ *
+ * The database is of the form:
+ *
+ *          CoordTable
+
+----------------------------------------------------------------------------------------------------
+   PointID    |    X_coord    |   Y_coord    |       BSSID            |      Strength (out of 20)
+----------------------------------------------------------------------------------------------------
+     1             4.7            6.9            00:08:C7:1B:8C:02                79
+----------------------------------------------------------------------------------------------------
+     2              7              24            20:29:B1:1A:5A:03                67
+----------------------------------------------------------------------------------------------------
+     3             1.1             5.7           00:08:C7:1B:8C:02                36
+----------------------------------------------------------------------------------------------------
+     1             4.7             6.9           12:08:C7:1C:8B:02                25
+----------------------------------------------------------------------------------------------------
+     3             1.1             5.7           20:29:B1:1A:5A:03                88
+----------------------------------------------------------------------------------------------------
+
+ *
+ * PointIDs do repeat themselves, as each point will have multiple BSSID results, each with their
+ * corresponding strengths
+ *
+ * This is accounted for via SQL commands later on in the code when accessing these points.
+ *
+ * Important methods include:
+ *
+ * insertDataForSomePoint() - takes x,y coordinates, BSSID array, and signal strength array. This
+ *                            method handles the insertion of new rows into the database
+ *
+ * returnNearestNeighbour() - takes the same as insertDataForSomePoint(), but returns the nearest x,y
+ *                            coordinate set for the nearest recorded datapoint
+ *
+ *
  */
 
-// Help from: http://stackoverflow.com/questions/6905524/using-singleton-design-pattern-for-sqlitedatabase
-// Help also from: http://www.androiddesignpatterns.com/2012/05/correctly-managing-your-sqlite-database.html
+
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static DatabaseHelper mInstance = null;
 
@@ -49,7 +85,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+
+
     // When we have recorded scans for some point and want to put that data into the database
+    // This will allow the user to insert a scan for a particular point as some row
     public void insertDataForSomePoint(double x, double y,
                                        ArrayList<String> BSSID_arr,
                                        ArrayList<Integer> signalStrength_arr) {
@@ -90,11 +129,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 pointIdValue = maxValue + 1;
 
 
-                /*
-                 * Now that we have chosen an ID value, we can create the new database entry for the point
-                 */
-
-            // Access the database
+            /*
+             * Now that we have chosen an ID value, we can create the new database entry for the point
+             */
 
 
             // Inserts as many rows as we have BSSID's for the given point
@@ -127,11 +164,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         res.close();
     }
 
-    // The function finds the nearest neighbours of the point passed in
-    // Returns the x and y coordinates of the
 
-    // CODE FOR ACCESSING THE VALUES WE NEED IN THE DATABASE
-    public float[] returnNearestNeighbour(float x, float y,
+
+    /*
+     * The function finds the nearest neighbours of the point passed in
+     * Returns the x and y coordinates of the
+     * It allows us to access all points in the database and find the nearest one to us based on BSSID scans.
+     */
+     public float[] returnNearestNeighbour(float x, float y,
                                           ArrayList<String> BSSID_arr,
                                           ArrayList<Integer>  signalStrength_arr) {
 
@@ -390,7 +430,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return yCoords;
     }
 
-    // For debugging the SQL table
+    // For debugging/printing the SQL table
     public String getTableAsString() {
         SQLiteDatabase db = this.getWritableDatabase();
         String tableName = "pointTable";

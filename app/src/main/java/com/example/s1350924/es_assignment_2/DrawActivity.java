@@ -26,6 +26,24 @@ import java.util.ArrayList;
 
 import static com.example.s1350924.es_assignment_2.R.id.fab_help;
 
+
+/*
+ * This activity allows the user to draw a path with their finger. The user will then need to walk
+ * this path in order to train the dataset.
+ *
+ * In order to draw the path we extend the View object. We use a bitmap of our floorplan as our background
+ * and use a Path object to draw our path. This path connects the points drawn by the user's finger on
+ * the phone screen. We use a path because it's smoother than just drawing the points, which can be unevenly
+ * spread.
+ *
+ * We also use dialogue boxes and Toasts to provide instruction to the user as they go along. These are
+ * helpful at prompting the user as they use the app, and even just in case they forget how to use it.
+ *
+ * If the "question mark" button is pressed, we bring up the dialogue box with instructions.
+ *
+ * If the "forward arrow" button is pressed, we bring up the next activity, TrainingActivity.
+ */
+
 public class DrawActivity extends Activity {
 
     boolean proceedWithDrawing;
@@ -41,7 +59,7 @@ public class DrawActivity extends Activity {
 
         raiseExplanationDialogueBox(mycontext);
 
-        // Help users can click if they forgot how to train
+        // Help: users can click if they forgot how to train and need instructions
         FloatingActionButton question_button = (FloatingActionButton) findViewById(fab_help);
         question_button.setImageResource(R.drawable.ic_help_black_48dp);
         question_button.setOnClickListener(new View.OnClickListener() {
@@ -84,7 +102,7 @@ public class DrawActivity extends Activity {
     }
 
 
-        // Does all the drawing
+    // This class will take care of all the drawing
     public static class drawRoute extends View {
         Context context;
         /*
@@ -249,6 +267,13 @@ public class DrawActivity extends Activity {
         }
 
 
+        /*
+         * This method takes in an unscaled bitmap, and scales it to the right size to fit on the screen
+         * correctly.
+         *
+         * This bitmap will be scaled now and then passed on through the rest of the Activities
+         * in order to be able to use if in the future when drawing on Views.
+         */
         private Bitmap scaleBitMapToScreenSize(Bitmap unscaledBitmap) {
 
             // This is the scaled bitmap, will be returned
@@ -282,27 +307,6 @@ public class DrawActivity extends Activity {
 
                 // recreate the new Bitmap
                 s_Bitmap = Bitmap.createBitmap(unscaledBitmap, 0, 0, orig_width, orig_height, matrix, true);
-        /*
-                // Save the resized image to file
-                FileOutputStream out = null;
-                try {
-                    File file = new File(context.getFilesDir(), "fleemingJenkin");
-                    out = new FileOutputStream(file);
-                    // Compress the bitmap to a PNG
-                    // The option of 100 is ignored as PNG is a losseless format
-                    s_Bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        if (out != null) {
-                            out.close();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-        */
 
             } catch (Exception e) {
                 e.printStackTrace();

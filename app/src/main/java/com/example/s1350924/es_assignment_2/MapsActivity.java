@@ -25,6 +25,19 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import static com.example.s1350924.es_assignment_2.R.id.map;
 
 
+/*
+ * This activity makes use of the Google Maps API (v2).
+ *
+ * It is used to display a world map, overlayed with our desired floorplans. It also includes
+ * a feature to access our current location, and a zoom in/zoom out button as well as pinch-to-zoom
+ * capabilites.
+ *
+ * The user can click on any orange marker in order to access the training sequence for that given floor plan.
+ * Alternatively the user can click the button "INSIDE VIEW" to go immeditely to the tracking screen
+ * and avoid training the map if they have already done so or simply wish to use the tracking feature right now.
+ */
+
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -137,10 +150,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return true;
             }
         });
-
-    //    mMap.setOnGroundOverlayClickListener(GoogleMap.OnGroundOverlayClickListener listener){
-
-    //    }
     }
 
     public boolean onMarkerClick(final Marker marker) {

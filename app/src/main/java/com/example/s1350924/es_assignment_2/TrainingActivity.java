@@ -28,6 +28,19 @@ import java.util.List;
 import static com.example.s1350924.es_assignment_2.R.id.fab_help;
 import static com.example.s1350924.es_assignment_2.R.id.fab_next;
 
+
+/*
+ * This Activity is used to train the dataset. The user follows the dot along the path that they
+ * drew in the previous activity, DrawActivity, at the speed of the animation - they must attempt to
+ * keep up the same pace as the dot in order for scans to be as accurate as possible.
+ *
+ * As they follow the animation,  we use a WifiManager to access all current BSSIDs and signal strengths.
+ * These are then passed to DatabaseHelper, which enters these points into the database. These will
+ * be used later in the TrackingActivity to track the user as they move around the map.
+ */
+
+
+
 public class TrainingActivity extends Activity {
 
     static int currentAnimationIndex;

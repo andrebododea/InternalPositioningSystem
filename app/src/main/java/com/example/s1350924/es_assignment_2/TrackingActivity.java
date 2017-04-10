@@ -35,6 +35,19 @@ import static com.example.s1350924.es_assignment_2.R.id.fab_show;
 import static com.example.s1350924.es_assignment_2.R.id.map_fab;
 
 
+/*
+ * This activity is responsible for tracking the user as they walk around the map.
+ *
+ * This activity assumes that the user has already trained the database with a few points at least,
+ * and therefore accesses the database via DatabaseHelper, and uses the returnNearestNeighbour() method
+ * in order to find the point in the database which has the RSS scans with strengths as similar to the point
+ * as possible. The most similar will be chosen as the "nearest neighbour", and displayed on the map
+ * as the user's estimated location.
+ */
+
+
+
+
 public class TrackingActivity extends Activity {
 
     static boolean endTimer;
@@ -150,6 +163,7 @@ public class TrackingActivity extends Activity {
         alertDialog.show();
     }
 
+
     // Does all the drawing
     public static class locationTracker extends View {
 
@@ -222,6 +236,7 @@ public class TrackingActivity extends Activity {
             invalidate();
             return true;
         }
+
 
 
         @Override
@@ -308,8 +323,7 @@ public class TrackingActivity extends Activity {
                  //   Toast.makeText(activity, "Showing all recorded locations stored in database.", Toast.LENGTH_SHORT).show();
                     invalidate();
                 } else {
-                    Toast.makeText(activity, "No path data found. Please go back to the draw phase and try again.",
-                            Toast.LENGTH_LONG).show();
+                 //   Toast.makeText(activity, "No path data found. Please go back to the draw phase and try again.",Toast.LENGTH_SHORT).show();
                 }
             }else{
                 path.reset();
