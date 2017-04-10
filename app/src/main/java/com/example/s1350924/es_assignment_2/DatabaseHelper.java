@@ -259,7 +259,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
          * Store the
          */
 
-        int matchThreshold = 4;
+        int matchThreshold = 3;
         int closestPointID = -1;
         double lowestAvgDistance = -1.0;
 
@@ -268,21 +268,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int numOfMatches = numberOfMatchingBSSIDs.get(k);
             // Ensure that we exceed the match threshold number
             if(numOfMatches >= matchThreshold){
+
+                // Weighting factor is +0.05 for each matched data point
+                double weighting_factor = numOfMatches*0.05;
+
                 // Compute the avgDist
-                double avgDist = distDifferences.get(k)/numOfMatches;
+                double avgDist = distDifferences.get(k)/numOfMatches+weighting_factor;
 
                System.out.println("AVG Dist of this point is: " + avgDist + " and pointId=" + k+", and lowest recorded avg Distance is: "+lowestAvgDistance+ " at point "+closestPointID);
 
-                // If we do not yet have a value, simply add this one in
-                if(lowestAvgDistance == -1.0){
-                    lowestAvgDistance = avgDist;
-                    closestPointID = k;
-                }else{
-                    // Otherwise, only replace the lowestAvgDistance with the current avgDist if
-                    // avgDist is lower
-                    if(avgDist < lowestAvgDistance){
+                if(avgDist != 0.0) {
+                    // If we do not yet have a value, simply add this one in
+                    if (lowestAvgDistance == -1.0) {
                         lowestAvgDistance = avgDist;
                         closestPointID = k;
+                    } else {
+                        // Otherwise, only replace the lowestAvgDistance with the current avgDist if
+                        // avgDist is lower
+                        if (avgDist < lowestAvgDistance) {
+                            lowestAvgDistance = avgDist;
+                            closestPointID = k;
+                        }
                     }
                 }
             }
