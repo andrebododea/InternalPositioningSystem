@@ -8,6 +8,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.view.View;
+import android.widget.Button;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -44,6 +46,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(map);
 
         mapFragment.getMapAsync(this);
+
+        // Set the button
+        Button button = (Button) findViewById(R.id.trackbutton);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent myIntent = new Intent(MapsActivity.this, TrackingActivity.class);
+
+                // Start new activity with this new intent
+                MapsActivity.this.startActivity(myIntent);
+            }
+        });
+
     }
 
 

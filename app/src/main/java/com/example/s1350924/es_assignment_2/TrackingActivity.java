@@ -15,6 +15,7 @@ import android.graphics.Path;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
@@ -29,14 +30,23 @@ import java.util.List;
 
 import static android.R.attr.x;
 import static android.R.attr.y;
+import static com.example.s1350924.es_assignment_2.R.id.fab_show;
 import static com.example.s1350924.es_assignment_2.R.id.map_fab;
 
 public class TrackingActivity extends Activity {
+
+    static boolean endTimer;
+    static boolean showGrid;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tracking);
+
+        Toast.makeText(this, "Touch the screen to begin tracking.", Toast.LENGTH_SHORT).show();
+
 
         // Map button
         FloatingActionButton mapFab = (FloatingActionButton) findViewById(map_fab);
@@ -45,6 +55,7 @@ public class TrackingActivity extends Activity {
         mapFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                endTimer = true;
 
                 Intent myIntent = new Intent(TrackingActivity.this, MapsActivity.class);
 
@@ -52,6 +63,36 @@ public class TrackingActivity extends Activity {
                 TrackingActivity.this.startActivity(myIntent);
             }
         });
+
+        // When true will cause all stored values in database to be shown
+        showGrid = false;
+
+
+
+        FloatingActionButton show_paths_button = (FloatingActionButton) findViewById(fab_show);
+        show_paths_button.setImageResource(R.drawable.grid_button);
+
+        // Set the show grid button to listen
+        show_paths_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                showGrid = true;
+
+                new CountDownTimer(3000, 3000) {
+                    public void onTick(long millisUntilFinished) {
+
+                    }
+
+                    public void onFinish() {
+                        showGrid = false;
+                    }
+
+                }.start();
+            }
+        });
+
+
 
 
     }
@@ -151,19 +192,16 @@ public class TrackingActivity extends Activity {
             nearestXcoord = -1;
             nearestYcoord= -1;
 
+            endTimer = false;
+
         }
 
 
         // When the screen is tapped, the animation begins
         @Override
         public boolean onTouchEvent(MotionEvent event) {
-            // Get nearest
-            float[] xyArr =  nearestNeighbourCaller();
-
-            nearestXcoord = xyArr[0];
-            nearestYcoord= xyArr[1];
-
-            invalidate();
+            if(event.getAction() == MotionEvent.ACTION_DOWN)
+                trackLocationTimer();
 
             return true;
         }
@@ -174,10 +212,8 @@ public class TrackingActivity extends Activity {
         @Override
         protected void onDraw(Canvas canvas) {
 
-            // Test toast
-            Toast.makeText(context, "Calling onDraw",Toast.LENGTH_SHORT).show();
-
             canvas.drawBitmap(fleemingJenkin, 0, 0, null);
+            drawAllRecordedPoints(canvas); // Will only result in a drawn path if the boolean is set to true
             canvas.drawPath(path, paint);
 
             Paint paint = new Paint();
@@ -220,43 +256,76 @@ public class TrackingActivity extends Activity {
         }
 
 
-        private void drawAllRecordedPoints(){
+        private void trackLocationTimer(){
+            int numberOfIterations = 50000;
+            int millisecondsPerFrame = 1000;
 
-            Activity activity = (Activity) context;
+            int totalMilliseconds = millisecondsPerFrame * numberOfIterations;
+            /*
+             * TIMER
+             * THIS IS WHERE THE DATABASE FUNCTIONS ARE CALLED
+             * THIS IS WHERE THE DOT IS REDRAWN FOR ANIMATION
+             * PROBABLY THE MOST IMPORTANT PART OF THE ACTIVITY
+             */
+            new CountDownTimer(totalMilliseconds, millisecondsPerFrame) {
+                public void onTick(long millisUntilFinished) {
 
-            // Initialise a database helper
-            DatabaseHelper db = new DatabaseHelper(context);
+                    if(endTimer){
+                        cancel();
+                    }
 
-            // Get all drawn data points in the database
-            ArrayList<Float> xCoords = db.getAllXCoords();
-            ArrayList<Float> yCoords = db.getAllYCoords();
+                    // Get nearest
+                    float[] xyArr =  nearestNeighbourCaller();
 
-            // Path is stroked, BLUE, 15dpi in diameter,
-            // and the points of the path will be joined and rounded.
-            paint.setAntiAlias(true);
-            paint.setStrokeWidth(15f);
-            paint.setColor(Color.BLUE);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeJoin(Paint.Join.ROUND);
+                    nearestXcoord = xyArr[0];
+                    nearestYcoord= xyArr[1];
 
-            // Start path
-            if(xCoords.size() > 0 && yCoords.size()>0) {
-                path.moveTo(xCoords.get(0), yCoords.get(0));
-                for (int i = 1; i < xCoords.size(); i++) {
-                    // Draw the next segment of the line
-                    path.lineTo(xCoords.get(i), yCoords.get(i));
+                    invalidate();
+
+                }
+
+                public void onFinish() {}
+
+            }.start();
+        }
+
+
+        private void drawAllRecordedPoints(Canvas canvas){
+            if(showGrid) {
+
+                Activity activity = (Activity) context;
+
+                // Initialise a database helper
+                DatabaseHelper db = new DatabaseHelper(context);
+
+                // Get all drawn data points in the database
+                ArrayList<Float> xCoords = db.getAllXCoords();
+                ArrayList<Float> yCoords = db.getAllYCoords();
+
+                // Path is stroked, BLUE, 15dpi in diameter,
+                // and the points of the path will be joined and rounded.
+                paint.setAntiAlias(true);
+                paint.setStrokeWidth(15f);
+                paint.setColor(Color.RED);
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setStrokeJoin(Paint.Join.ROUND);
+
+                // Start path
+                if (xCoords.size() > 0 && yCoords.size() > 0) {
+                    for (int i = 0; i < xCoords.size(); i++) {
+                        // Draw the next segment of the line
+                        canvas.drawCircle(xCoords.get(i),  yCoords.get(i), 15, paint );
+                    }
+                 //   Toast.makeText(activity, "Showing all recorded locations stored in database.", Toast.LENGTH_SHORT).show();
+                    invalidate();
+                } else {
+                    Toast.makeText(activity, "No path data found. Please go back to the draw phase and try again.",
+                            Toast.LENGTH_LONG).show();
                 }
             }else{
-                Toast.makeText(activity, "No path data found. Please go back to the draw phase and try again.",
-                        Toast.LENGTH_LONG).show();
+                path.reset();
             }
         }
-
-        private void clearPath(){
-            // Clear the old path
-            path.reset();
-        }
-
 
 
 

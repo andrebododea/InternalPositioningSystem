@@ -235,7 +235,7 @@ public class TrainingActivity extends Activity {
                 public void onTick(long millisUntilFinished) {
                     if(currentAnimationIndex == xCoords.size()-1){
                         Toast.makeText(context, "Touch the arrow to begin tracking yourself!",
-                                Toast.LENGTH_LONG).show();
+                                Toast.LENGTH_SHORT).show();
                         cancel();
                     }else {
                         // Re-draw the onDraw() method, this moves the green dot to the next point

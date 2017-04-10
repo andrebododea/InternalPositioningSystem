@@ -121,6 +121,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Close the database
         mDatabase.close();
+
+
+        // Close cursor to prevent memory leaks
+        res.close();
     }
 
     // The function finds the nearest neighbours of the point passed in
@@ -159,6 +163,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ArrayList<Integer> distDifferences = new ArrayList<Integer>();
         ArrayList<Integer> numberOfMatchingBSSIDs = new ArrayList<Integer>();
 
+
         // Get the lowest point ID in the database
         res = mDatabase.rawQuery("SELECT MIN(PointID) FROM pointTable",null);
         res.moveToFirst();
@@ -169,13 +174,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         res.moveToFirst();
         int highestID =res.getInt(0);
 
+        System.out.println("HIGHEST ID IS: "+ highestID);
+
         // Initialise the values to 0 for both arrays.
         // Must do this as values in the arrays will be incremented, therefore we start at 0
         for(int i = 0; i <= highestID; i++){
             distDifferences.add(i, 0);
-            System.out.println("differences: "+distDifferences.get(i) + "\n");
             numberOfMatchingBSSIDs.add(i,0);
-            System.out.println("BSSID match #: "+numberOfMatchingBSSIDs.get(i) + "\n");
         }
 
 
@@ -185,8 +190,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int currStrength = signalStrength_arr.get(i);
 
             // Get the IDs of all the signal strengths in the database that match this BSSID
-            Cursor id = mDatabase.rawQuery("SELECT DISTINCT PointID FROM pointTable WHERE BSSID='" + currBSSID+"'",null );
+
+            // Get rid of reducedTable just in case something interrupted the loop and stopped the table from being deleted
+            mDatabase.execSQL("DROP TABLE IF EXISTS reducedTable;");
+            // Create a table with all the relevant BSSIDs to shrink the data set
+            mDatabase.execSQL("CREATE TABLE reducedTable AS SELECT * FROM pointTable WHERE BSSID='" + currBSSID+"';");
+
+            Cursor id = mDatabase.rawQuery("SELECT DISTINCT PointID FROM reducedTable WHERE BSSID='" + currBSSID+"'",null );
             System.out.println("Entries from id query is: "+id.getCount());
+
             // Get the first ID point from the cursor
             if(id.moveToFirst() && id.getCount() > 0){
 
@@ -194,8 +206,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 do{
                     int idStr = id.getInt(0);
                    // System.out.println("The matched IDs are: "+idStr+"\n");
-                    Cursor strengths = mDatabase.rawQuery("SELECT SignalStrength FROM pointTable WHERE BSSID= '"
-                            + currBSSID+"' AND PointID="+idStr,null );
+
+                    // Use reduced table to quicken the operation
+                    Cursor strengths = mDatabase.rawQuery("SELECT SignalStrength FROM reducedTable WHERE PointID="+idStr +" AND BSSID= '"
+                            + currBSSID+"'",null );
 
                     strengths.moveToFirst();
 
@@ -209,14 +223,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     // point. This will be averaged after all differences are counted, using
                     // the corresponding value from numberOfMatchingBSSIDs
                     int newVal = distDifferences.get(idStr) +strengthDifference;
-                    distDifferences.add(idStr,newVal);
+                    distDifferences.set(idStr,newVal);
 
                     // Increment the number of matching BSSIDs.
                     // Only difference scores with a high enough number of matched BSSIDs will be considered
                     // This is to prevent the situation where one or two scans match very well, however there
                     // is a better match somewhere
                     newVal = numberOfMatchingBSSIDs.get(idStr)+1;
-                    numberOfMatchingBSSIDs.add(idStr,newVal);
+                    numberOfMatchingBSSIDs.set(idStr,newVal);
 
                     // Close the cursor to prevent memory leaks
                     strengths.close();
@@ -224,6 +238,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                 } while(id.moveToNext());
             }
+            // Delete the reduced table
+            mDatabase.execSQL("DROP TABLE reducedTable;");
+
             // Close the cursor to prevent memory leaks
             id.close();
         }
@@ -242,28 +259,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
          * Store the
          */
 
-        int matchThreshold = 10;
+        int matchThreshold = 4;
         int closestPointID = -1;
         double lowestAvgDistance = -1.0;
 
         // Iterate through all matched data from the database above
-        for(int i = 1; i < numberOfMatchingBSSIDs.size(); i++){
-            int numOfMatches = numberOfMatchingBSSIDs.get(i);
+        for(int k = 1; k < numberOfMatchingBSSIDs.size(); k++){
+            int numOfMatches = numberOfMatchingBSSIDs.get(k);
             // Ensure that we exceed the match threshold number
             if(numOfMatches >= matchThreshold){
                 // Compute the avgDist
-                double avgDist = distDifferences.get(i)/numOfMatches;
+                double avgDist = distDifferences.get(k)/numOfMatches;
+
+               System.out.println("AVG Dist of this point is: " + avgDist + " and pointId=" + k+", and lowest recorded avg Distance is: "+lowestAvgDistance+ " at point "+closestPointID);
 
                 // If we do not yet have a value, simply add this one in
                 if(lowestAvgDistance == -1.0){
                     lowestAvgDistance = avgDist;
-                    closestPointID = i;
+                    closestPointID = k;
                 }else{
                     // Otherwise, only replace the lowestAvgDistance with the current avgDist if
                     // avgDist is lower
                     if(avgDist < lowestAvgDistance){
                         lowestAvgDistance = avgDist;
-                        closestPointID = i;
+                        closestPointID = k;
                     }
                 }
             }
@@ -298,8 +317,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             xyArr[1] = res.getInt(0);
         }
 
+        // This is for debugging
+        System.out.println("PointID of chosen point is: "+ closestPointID);
+
+
         // Close the database
         mDatabase.close();
+
+        // Close the cursor to prevent memory leaks
+        res.close();
+
+
 
         System.out.println("The chosen point is at x= " + xyArr[0] + ", y= "+ xyArr[1]);
 
@@ -314,7 +342,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Open the database
         SQLiteDatabase mDatabase = this.getWritableDatabase();
 
-        Cursor res = mDatabase.rawQuery("SELECT xCoord FROM pointTable",null );
+        Cursor res = mDatabase.rawQuery("SELECT xCoord FROM(SELECT DISTINCT xCoord, yCoord FROM pointTable)",null);
 
         if(res.moveToFirst() && res.getCount() > 0) {
             do {
@@ -324,6 +352,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         // Close the database
         mDatabase.close();
+
+        // Close cursor to prevent memory leaks
+        res.close();
 
         return xCoords;
     }
@@ -335,7 +366,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Open the database
         SQLiteDatabase mDatabase = this.getWritableDatabase();
 
-        Cursor res = mDatabase.rawQuery("SELECT xCoord FROM pointTable",null );
+        Cursor res = mDatabase.rawQuery("SELECT yCoord FROM(SELECT DISTINCT xCoord, yCoord FROM pointTable)",null);
 
         if(res.moveToFirst() && res.getCount() > 0) {
             do {
@@ -345,6 +376,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         // Close the database
         mDatabase.close();
+
+        // Close cursor to prevent memory leaks
+        res.close();
 
         return yCoords;
     }
